@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>头像编辑器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .editor-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .editor-content {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .editor-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .crop-container {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #ddd;
+            background: #f5f5f5;
+            cursor: move;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .crop-container img {
+            position: absolute;
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+            transform-origin: center center;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .crop-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            border-radius: 50%;
+            box-shadow: inset 0 0 0 100px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            min-width: 60px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #ddd;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .value-display {
+            min-width: 50px;
+            text-align: right;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .preview-container {
+            text-align: center;
+        }
+
+        .preview-title {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .preview-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #667eea;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .preview-small {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .preview-large img,
+        .preview-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                padding: 20px;
+            }
+
+            .editor-content {
+                flex-direction: column;
+            }
+
+            .crop-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-container">
+        <h1>🎨 头像编辑器</h1>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">点击或拖拽图片到此处上传</div>
+            <div class="upload-hint">支持 JPG、PNG、GIF、WebP 格式</div>
+        </div>
+
+        <div class="editor-content hidden" id="editorContent">
+            <div class="editor-section">
+                <div class="crop-container" id="cropContainer">
+                    <img id="cropImage" src="" alt="裁剪图片">
+                    <div class="crop-overlay"></div>
+                </div>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label>缩放</label>
+                        <input type="range" class="slider" id="scaleSlider" min="0.5" max="3" step="0.01" value="1">
+                        <span class="value-display" id="scaleValue">1.00x</span>
+                    </div>
+                    <div class="control-group">
+                        <label>位置 X</label>
+                        <input type="range" class="slider" id="xSlider" min="-100" max="100" step="1" value="0">
+                        <span class="value-display" id="xValue">0px</span>
+                    </div>
+                    <div class="control-group">
+                        <label>位置 Y</label>
+                        <input type="range" class="slider" id="ySlider" min="-100" max="100" step="1" value="0">
+                        <span class="value-display" id="yValue">0px</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-container">
+                    <div class="preview-title">大头像预览 (120px)</div>
+                    <div class="preview-large">
+                        <img id="previewLarge" src="" alt="大头像预览">
+                    </div>
+                </div>
+
+                <div class="preview-container">
+                    <div class="preview-title">小头像预览 (48px)</div>
+                    <div class="preview-small">
+                        <img id="previewSmall" src="" alt="小头像预览">
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="resetEditor()">重置</button>
+                    <button class="btn btn-primary" onclick="saveAvatar()">保存头像</button>
+                </div>
+            </div>
+        </div>
+
+        <input type="file" class="file-input" id="fileInput" accept="image/*">
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const editorContent = document.getElementById('editorContent');
+        const cropContainer = document.getElementById('cropContainer');
+        const cropImage = document.getElementById('cropImage');
+        const previewLarge = document.getElementById('previewLarge');
+        const previewSmall = document.getElementById('previewSmall');
+        const scaleSlider = document.getElementById('scaleSlider');
+        const xSlider = document.getElementById('xSlider');
+        const ySlider = document.getElementById('ySlider');
+        const scaleValue = document.getElementById('scaleValue');
+        const xValue = document.getElementById('xValue');
+        const yValue = document.getElementById('yValue');
+
+        let originalImage = null;
+        let scale = 1;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let startX, startY;
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                loadImage(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                loadImage(file);
+            }
+        });
+
+        function loadImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    originalImage = img;
+                    cropImage.src = e.target.result;
+                    resetEditor();
+                    uploadArea.classList.add('hidden');
+                    editorContent.classList.remove('hidden');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetEditor() {
+            scale = 1;
+            offsetX = 0;
+            offsetY = 0;
+            scaleSlider.value = 1;
+            xSlider.value = 0;
+            ySlider.value = 0;
+            updateImageTransform();
+            updatePreviews();
+        }
+
+        function updateImageTransform() {
+            const containerWidth = cropContainer.offsetWidth;
+            const containerHeight = cropContainer.offsetHeight;
+            
+            cropImage.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+            
+            scaleValue.textContent = scale.toFixed(2) + 'x';
+            xValue.textContent = offsetX + 'px';
+            yValue.textContent = offsetY + 'px';
+        }
+
+        function updatePreviews() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const size = 300;
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+            ctx.clip();
+            
+            const imgWidth = originalImage.width;
+            const imgHeight = originalImage.height;
+            const containerWidth = cropContainer.offsetWidth;
+            const containerHeight = cropContainer.offsetHeight;
+            
+            const scaleRatio = Math.max(containerWidth / imgWidth, containerHeight / imgHeight) * scale;
+            const scaledWidth = imgWidth * scaleRatio;
+            const scaledHeight = imgHeight * scaleRatio;
+            
+            const x = (containerWidth - scaledWidth) / 2 + offsetX;
+            const y = (containerHeight - scaledHeight) / 2 + offsetY;
+            
+            ctx.drawImage(originalImage, x, y, scaledWidth, scaledHeight);
+            ctx.restore();
+            
+            const dataUrl = canvas.toDataURL('image/png');
+            previewLarge.src = dataUrl;
+            previewSmall.src = dataUrl;
+        }
+
+        scaleSlider.addEventListener('input', (e) => {
+            scale = parseFloat(e.target.value);
+            updateImageTransform();
+            updatePreviews();
+        });
+
+        xSlider.addEventListener('input', (e) => {
+            offsetX = parseInt(e.target.value);
+            updateImageTransform();
+            updatePreviews();
+        });
+
+        ySlider.addEventListener('input', (e) => {
+            offsetY = parseInt(e.target.value);
+            updateImageTransform();
+            updatePreviews();
+        });
+
+        cropContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - offsetX;
+            startY = e.clientY - offsetY;
+            cropContainer.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            offsetX = e.clientX - startX;
+            offsetY = e.clientY - startY;
+            
+            xSlider.value = Math.max(-100, Math.min(100, offsetX));
+            ySlider.value = Math.max(-100, Math.min(100, offsetY));
+            
+            updateImageTransform();
+            updatePreviews();
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            cropContainer.style.cursor = 'move';
+        });
+
+        cropContainer.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            const touch = e.touches[0];
+            startX = touch.clientX - offsetX;
+            startY = touch.clientY - offsetY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            const touch = e.touches[0];
+            offsetX = touch.clientX - startX;
+            offsetY = touch.clientY - startY;
+            
+            xSlider.value = Math.max(-100, Math.min(100, offsetX));
+            ySlider.value = Math.max(-100, Math.min(100, offsetY));
+            
+            updateImageTransform();
+            updatePreviews();
+        });
+
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        function saveAvatar() {
+            const dataUrl = previewLarge.src;
+            localStorage.setItem('memberAvatar', dataUrl);
+            
+            alert('头像保存成功！现在可以关闭此页面。');
+            
+            if (window.opener) {
+                window.opener.location.reload();
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (originalImage) {
+                updatePreviews();
+            }
+        });
+    </script>
+</body>
+</html>

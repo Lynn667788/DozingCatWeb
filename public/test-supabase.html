@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Supabase 测试</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: white;
+            color: black;
+        }
+        button { 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            background: #4CAF50; 
+            color: white; 
+            border: none; 
+            cursor: pointer;
+        }
+        #result { 
+            margin-top: 20px; 
+            padding: 10px; 
+            background: #f5f5f5; 
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Supabase 连接测试</h1>
+    <p>点击下面的按钮测试 Supabase 连接</p>
+    <button onclick="testConnection()">测试连接</button>
+    <div id="result">等待测试...</div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        window.onload = function() {
+            document.getElementById('result').innerText = '页面加载完成，点击按钮测试';
+        };
+        
+        async function testConnection() {
+            var resultDiv = document.getElementById('result');
+            resultDiv.innerText = '正在测试...';
+            
+            try {
+                var client = supabase.createClient(
+                    'https://dtkbnkqtgelwvtgmpaad.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0a2Jua3F0Z2Vsd3Z0Z21wYWFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NDU4MzEsImV4cCI6MjA5MTMyMTgzMX0.RiitiByYneE0Fe9z6gNdwfDOrtYCbLXmhLA6w0xJYYM'
+                );
+                
+                var response = await client.from('products').select('*').limit(5);
+                
+                if (response.error) {
+                    resultDiv.innerText = '错误: ' + JSON.stringify(response.error);
+                } else {
+                    resultDiv.innerText = '成功! 找到 ' + response.data.length + ' 个产品\n\n' + JSON.stringify(response.data, null, 2);
+                }
+            } catch (e) {
+                resultDiv.innerText = '异常: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>

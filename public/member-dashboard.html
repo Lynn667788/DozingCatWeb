@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员中心 - DozingCat</title>
+    <link rel="stylesheet" href="css/style.css?v=1.0.3">
+    <link rel="stylesheet" href="css/icons.css?v=1.0.3">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <script src="js/security.js"></script>
+    <script src="js/session-manager.js"></script>
+    <script src="js/user-data-manager.js"></script>
+    <script src="js/language.js"></script>
+</head>
+<body>
+    <svg style="display: none;">
+        <use href="icons.svg#icon-cat"></use>
+        <use href="icons.svg#icon-home"></use>
+        <use href="icons.svg#icon-logout"></use>
+        <use href="icons.svg#icon-cart"></use>
+        <use href="icons.svg#icon-profile"></use>
+        <use href="icons.svg#icon-flower"></use>
+        <use href="icons.svg#icon-location"></use>
+        <use href="icons.svg#icon-card"></use>
+        <use href="icons.svg#icon-delivery"></use>
+        <use href="icons.svg#icon-star"></use>
+        <use href="icons.svg#icon-chat"></use>
+        <use href="icons.svg#icon-phone"></use>
+        <use href="icons.svg#icon-email"></use>
+        <use href="icons.svg#icon-gift"></use>
+        <use href="icons.svg#icon-package"></use>
+        <use href="icons.svg#icon-heart"></use>
+        <use href="icons.svg#icon-crown"></use>
+        <use href="icons.svg#icon-diamond"></use>
+        <use href="icons.svg#icon-butterfly"></use>
+        <use href="icons.svg#icon-moon"></use>
+        <use href="icons.svg#icon-sun"></use>
+        <use href="icons.svg#icon-rainbow"></use>
+        <use href="icons.svg#icon-shield"></use>
+        <use href="icons.svg#icon-bell"></use>
+        <use href="icons.svg#icon-search"></use>
+        <use href="icons.svg#icon-sparkle"></use>
+        <use href="icons.svg#icon-celebration"></use>
+        <use href="icons.svg#icon-close"></use>
+        <use href="icons.svg#icon-check"></use>
+        <use href="icons.svg#icon-menu"></use>
+        <use href="icons.svg#icon-arrow-left"></use>
+        <use href="icons.svg#icon-arrow-right"></use>
+        <use href="icons.svg#icon-settings"></use>
+        <use href="icons.svg#icon-edit"></use>
+        <use href="icons.svg#icon-delete"></use>
+        <use href="icons.svg#icon-plus"></use>
+        <use href="icons.svg#icon-minus"></use>
+    </svg>
+<body>
+    <div class="member-dashboard">
+        <header class="member-header">
+            <div class="header-container">
+                <div class="header-left">
+                    <h1 class="brand-logo">
+                        <svg class="brand-logo-icon">
+                            <use href="icons.svg#icon-cat"></use>
+                        </svg>
+                        DozingCat
+                    </h1>
+                </div>
+                <div class="header-right">
+                    <div class="header-avatar-container">
+                        <button class="header-avatar" id="header-avatar-display">
+                            <svg class="icon icon-xl">
+                                <use href="icons.svg#icon-cat"></use>
+                            </svg>
+                        </button>
+                        <button class="header-logout-small" onclick="logout()" title="退出登录">
+                            <svg class="icon icon-md">
+                                <use href="icons.svg#icon-logout"></use>
+                            </svg>
+                            <span data-lang="member.logout">退出登录</span>
+                        </button>
+                    </div>
+                    <button class="header-btn" onclick="goToHome()">
+                        <svg class="icon icon-md">
+                            <use href="icons.svg#icon-home"></use>
+                        </svg>
+                        <span data-lang="member.home">返回首页</span>
+                    </button>
+                    <button onclick="toggleLanguage()" class="lang-btn" id="member-lang-btn">EN</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="member-content">
+            <aside class="member-sidebar">
+                <div class="sidebar-brand">
+                </div>
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" onclick="showSection('dashboard')">
+                        <span>✨</span>
+                        <span class="nav-text" data-lang="member.dashboard">概览</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('orders')">
+                        <span>💖</span>
+                        <span class="nav-text" data-lang="member.orders">我的订单</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('profile')">
+                        <span>👤</span>
+                        <span class="nav-text" data-lang="member.profile">个人信息</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('wishlist')">
+                        <span>❤️</span>
+                        <span class="nav-text" data-lang="member.favorites">收藏夹</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('address')">
+                        <span>📍</span>
+                        <span class="nav-text" data-lang="member.address">收货地址</span>
+                    </a>
+                    <a href="#" class="nav-item" onclick="showSection('security')">
+                        <span>🛡️</span>
+                        <span class="nav-text" data-lang="member.security">账户安全</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <main class="member-main">
+                <div class="search-section">
+                    <div class="search-bar">
+                        <input type="text" placeholder="搜索商品..." class="search-input">
+                        <button class="search-btn">
+                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section" id="dashboard-section">
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">💳</div>
+                            <div class="stat-info">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label" data-lang="member.pending">待付款</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🚚</div>
+                            <div class="stat-info">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label" data-lang="member.shipping">待发货</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📦</div>
+                            <div class="stat-info">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label" data-lang="member.receiving">待收货</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⭐</div>
+                            <div class="stat-info">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label" data-lang="member.review">待评价</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recent-orders">
+                        <h3 data-lang="member.recent">最近订单</h3>
+                        <div class="empty-state">
+                            <div class="empty-icon">🛒</div>
+                            <p data-lang="member.noOrders">暂无订单</p>
+                            <a href="index.html" class="btn btn-primary">去购物</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section hidden" id="orders-section">
+                    <div class="section-header">
+                        <h2 data-lang="member.orders">我的订单</h2>
+                    </div>
+                    <div class="orders-tabs">
+                        <button class="order-tab active" data-status="all">全部订单</button>
+                        <button class="order-tab" data-status="pending">待付款</button>
+                        <button class="order-tab" data-status="shipped">待发货</button>
+                        <button class="order-tab" data-status="delivered">待收货</button>
+                        <button class="order-tab" data-status="completed">已完成</button>
+                    </div>
+                    <div class="orders-list">
+                        <div class="empty-state">
+                            <span class="empty-icon">📭</span>
+                            <p>暂无订单</p>
+                            <a href="index.html" class="btn btn-primary">去购物</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section hidden" id="profile-section">
+                    <div class="section-header">
+                        <h2>个人信息</h2>
+                    </div>
+                    <div class="profile-card">
+                        <div class="profile-avatar">
+                            <div class="avatar-large" id="profile-avatar-display">
+                                <svg class="icon icon-xxl">
+                                    <use href="icons.svg#icon-profile"></use>
+                                </svg>
+                            </div>
+                            <button class="btn btn-secondary" onclick="showAvatarModal()">
+                                <svg class="icon icon-sm">
+                                    <use href="icons.svg#icon-upload"></use>
+                                </svg>
+                                上传头像
+                            </button>
+                            <button class="btn btn-primary" onclick="generateCartoonAvatar()">AI生成猫咪头像</button>
+                        </div>
+                        <div class="profile-form">
+                            <div class="form-group">
+                                <label>用户名</label>
+                                <input type="text" value="会员" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>电子邮箱</label>
+                                <input type="email" value="member@example.com" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>手机号码</label>
+                                <input type="tel" value="138****8888" readonly>
+                            </div>
+                            <button class="btn btn-primary">保存修改</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section hidden" id="wishlist-section">
+                    <div class="section-header">
+                        <h2>收藏夹</h2>
+                    </div>
+                    <div class="wishlist-grid">
+                        <div class="empty-state">
+                            <span class="empty-icon">💗</span>
+                            <p>暂无收藏商品</p>
+                            <a href="index.html" class="btn btn-primary">去购物</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section hidden" id="address-section">
+                    <div class="section-header">
+                        <h2>收货地址</h2>
+                        <button class="btn btn-primary">添加新地址</button>
+                    </div>
+                    <div class="address-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg class="icon icon-xxl">
+                                    <use href="icons.svg#icon-home"></use>
+                                </svg>
+                            </div>
+                            <p>暂无收货地址</p>
+                            <button class="btn btn-primary">添加新地址</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section hidden" id="security-section">
+                    <div class="section-header">
+                        <h2>账户安全</h2>
+                    </div>
+                    <div class="security-options">
+                        <div class="security-item">
+                            <div class="security-icon">
+                                <svg class="icon icon-lg">
+                                    <use href="icons.svg#icon-shield"></use>
+                                </svg>
+                            </div>
+                            <div class="security-info">
+                                <h3>修改密码</h3>
+                                <p>定期更换密码以保护账户安全</p>
+                            </div>
+                            <button class="btn btn-secondary">修改</button>
+                        </div>
+                        <div class="security-item">
+                            <div class="security-icon">
+                                <svg class="icon icon-lg">
+                                    <use href="icons.svg#icon-phone"></use>
+                                </svg>
+                            </div>
+                            <div class="security-info">
+                                <h3>绑定手机</h3>
+                                <p>绑定手机号以便接收重要通知</p>
+                            </div>
+                            <button class="btn btn-secondary">绑定</button>
+                        </div>
+                        <div class="security-item">
+                            <div class="security-icon">
+                                <svg class="icon icon-lg">
+                                    <use href="icons.svg#icon-email"></use>
+                                </svg>
+                            </div>
+                            <div class="security-info">
+                                <h3>绑定邮箱</h3>
+                                <p>绑定邮箱以便接收订单通知</p>
+                            </div>
+                            <button class="btn btn-secondary">绑定</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="notification" class="notification hidden"></div>
+
+    <script>
+        console.log('member-dashboard.html - 开始初始化');
+        console.log('member-dashboard.html - localStorage中的cart数据:', localStorage.getItem('cart'));
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        console.log('member-dashboard.html - 初始化后的cart数据:', cart);
+        let cartCount = 0;
+        let lastAvatarCheck = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOMContentLoaded fired');
+            SessionManager.init();
+            
+            if (!SessionManager.isLoggedIn()) {
+                console.log('User not logged in, redirecting to home page...');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const userData = SessionManager.getUserData();
+            if (userData && userData.role === 'admin') {
+                console.log('User is admin, redirecting to admin dashboard...');
+                window.location.href = 'admin.html';
+                return;
+            }
+            
+            SecurityUtils.addSecurityHeaders();
+            
+            SecurityUtils.preventRightClick();
+            
+            loadSavedAvatar();
+            setInterval(checkAvatarUpdate, 1000);
+            initCustomerServiceDrag();
+            
+            console.log('toggleUserMenu function exists:', typeof toggleUserMenu);
+            console.log('logout function exists:', typeof logout);
+        });
+
+        function checkAvatarUpdate() {
+            const currentAvatar = localStorage.getItem('memberAvatar') || '';
+            if (currentAvatar !== lastAvatarCheck) {
+                lastAvatarCheck = currentAvatar;
+                loadSavedAvatar();
+            }
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(section + '-section').classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelector(`.nav-item[onclick="showSection('${section}')"]`).classList.add('active');
+        }
+
+        function showCart() {
+            showNotification('购物车功能开发中...', 'info');
+        }
+
+        function goToHome() {
+            window.location.href = 'index.html';
+        }
+
+        function showAvatarModal() {
+            document.getElementById('avatar-modal').classList.remove('hidden');
+        }
+
+        function closeAvatarModal() {
+            document.getElementById('avatar-modal').classList.add('hidden');
+            resetAvatarEditor();
+        }
+
+        function handleAvatarFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const cropImage = document.getElementById('avatar-crop-image');
+                cropImage.src = e.target.result;
+                resetAvatarEditor();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetAvatarEditor() {
+            document.getElementById('avatar-scale').value = 1;
+            document.getElementById('avatar-x').value = 0;
+            document.getElementById('avatar-y').value = 0;
+            updateAvatarTransform();
+        }
+
+        function updateAvatarTransform() {
+            const scale = parseFloat(document.getElementById('avatar-scale').value);
+            const x = parseInt(document.getElementById('avatar-x').value);
+            const y = parseInt(document.getElementById('avatar-y').value);
+
+            const cropImage = document.getElementById('avatar-crop-image');
+            cropImage.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`;
+
+            document.getElementById('avatar-scale-value').textContent = scale.toFixed(2) + 'x';
+            document.getElementById('avatar-x-value').textContent = x + 'px';
+            document.getElementById('avatar-y-value').textContent = y + 'px';
+        }
+
+        function saveAvatarFromModal() {
+            const cropImage = document.getElementById('avatar-crop-image');
+            if (!cropImage.src) {
+                showNotification('请先选择图片', 'error');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const size = 250;
+
+            canvas.width = size;
+            canvas.height = size;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+            ctx.clip();
+
+            const scale = parseFloat(document.getElementById('avatar-scale').value);
+            const x = parseInt(document.getElementById('avatar-x').value);
+            const y = parseInt(document.getElementById('avatar-y').value);
+
+            const img = new Image();
+            img.onload = function() {
+                const scaleRatio = Math.max(size / img.width, size / img.height) * scale;
+                const scaledWidth = img.width * scaleRatio;
+                const scaledHeight = img.height * scaleRatio;
+
+                const drawX = (size - scaledWidth) / 2 + x;
+                const drawY = (size - scaledHeight) / 2 + y;
+
+                ctx.drawImage(img, drawX, drawY, scaledWidth, scaledHeight);
+                ctx.restore();
+
+                const dataUrl = canvas.toDataURL('image/png');
+                UserDataManager.updateAvatar(dataUrl);
+
+                const profileAvatarDisplay = document.getElementById('profile-avatar-display');
+                const headerAvatarDisplay = document.getElementById('header-avatar-display');
+
+                const imgHtml = `<img src="${dataUrl}" alt="会员头像" class="avatar-large-img" style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%;">`;
+                const headerImgHtml = `<img src="${dataUrl}" alt="会员头像" style="width: 100%; height: 100%; object-fit: cover;">`;
+
+                profileAvatarDisplay.innerHTML = imgHtml;
+                headerAvatarDisplay.innerHTML = headerImgHtml;
+
+                closeAvatarModal();
+                showNotification('头像保存成功！');
+            };
+            img.src = cropImage.src;
+        }
+
+        function openAvatarEditor() {
+            window.open('/avatar-editor.html', 'avatarEditor', 'width=900,height=700,scrollbars=yes,resizable=yes');
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            console.log('开始上传头像:', file.name, file.type, file.size);
+
+            const maxSize = 2 * 1024 * 1024;
+            if (file.size > maxSize) {
+                showNotification('图片太大，请选择小于2MB的图片', 'error');
+                return;
+            }
+
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                showNotification('不支持的图片格式，请选择JPG、PNG或GIF', 'error');
+                return;
+            }
+
+            const profileAvatarDisplay = document.getElementById('profile-avatar-display');
+            const headerAvatarDisplay = document.getElementById('header-avatar-display');
+            
+            console.log('DOM元素已获取:', profileAvatarDisplay, headerAvatarDisplay);
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatarData = e.target.result;
+                
+                console.log('头像数据已生成，长度:', avatarData.length);
+                console.log('头像数据前100字符:', avatarData.substring(0, 100));
+                console.log('头像数据类型:', typeof avatarData);
+                
+                try {
+                    localStorage.setItem('memberAvatar', avatarData);
+                    console.log('头像已保存到localStorage');
+                    
+                    const imgHtml = `<img src="${avatarData}" alt="会员头像" class="avatar-large-img" style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%;">`;
+                    const headerImgHtml = `<img src="${avatarData}" alt="会员头像" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    
+                    profileAvatarDisplay.innerHTML = imgHtml;
+                    headerAvatarDisplay.innerHTML = headerImgHtml;
+                    
+                    console.log('头像已更新到DOM');
+                    console.log('profileAvatarDisplay.innerHTML:', profileAvatarDisplay.innerHTML);
+                    console.log('headerAvatarDisplay.innerHTML:', headerAvatarDisplay.innerHTML);
+                    
+                    showNotification('头像上传成功！', 'success');
+                } catch (error) {
+                    console.error('保存头像失败:', error);
+                    console.error('错误详情:', error.message);
+                    showNotification('头像保存失败：' + error.message, 'error');
+                }
+            };
+            
+            reader.onerror = function(error) {
+                console.error('头像上传失败:', error);
+                showNotification('头像上传失败，请重试', 'error');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function generateCartoonAvatar() {
+            showNotification('正在生成猫咪头像...', 'info');
+            
+            const catAvatars = [
+                'https://placekitten.com/120/120',
+                'https://placekitten.com/121/121',
+                'https://placekitten.com/122/122',
+                'https://placekitten.com/123/123',
+                'https://placekitten.com/124/124'
+            ];
+            
+            const randomAvatar = catAvatars[Math.floor(Math.random() * catAvatars.length)];
+            
+            setTimeout(() => {
+                const profileAvatarDisplay = document.getElementById('profile-avatar-display');
+                const headerAvatarDisplay = document.getElementById('header-avatar-display');
+                
+                const imgHtml = `<img src="${randomAvatar}" alt="猫咪头像" class="avatar-large-img" style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%;">`;
+                const headerImgHtml = `<img src="${randomAvatar}" alt="猫咪头像" style="width: 100%; height: 100%; object-fit: cover;">`;
+                
+                profileAvatarDisplay.innerHTML = imgHtml;
+                headerAvatarDisplay.innerHTML = headerImgHtml;
+                
+                localStorage.setItem('memberAvatar', randomAvatar);
+                
+                showNotification('猫咪头像生成成功！', 'success');
+            }, 1500);
+        }
+
+        function loadSavedAvatar() {
+            const savedAvatar = localStorage.getItem('memberAvatar');
+            console.log('加载保存的头像:', savedAvatar ? '存在' : '不存在');
+            
+            if (savedAvatar) {
+                const profileAvatarDisplay = document.getElementById('profile-avatar-display');
+                const headerAvatarDisplay = document.getElementById('header-avatar-display');
+                
+                if (savedAvatar.startsWith('data:image') || savedAvatar.startsWith('http')) {
+                    const imgHtml = `<img src="${savedAvatar}" alt="会员头像" class="avatar-large-img" style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%;">`;
+                    const headerImgHtml = `<img src="${savedAvatar}" alt="会员头像" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    
+                    profileAvatarDisplay.innerHTML = imgHtml;
+                    headerAvatarDisplay.innerHTML = headerImgHtml;
+                    
+                    headerAvatarDisplay.setAttribute('onclick', 'toggleUserMenu()');
+                    headerAvatarDisplay.style.cursor = 'pointer';
+                    
+                    console.log('已加载图片头像');
+                } else {
+                    const emojiHtml = `<span class="avatar-large-emoji">${savedAvatar}</span>`;
+                    const headerEmojiHtml = `<span class="avatar-emoji">${savedAvatar}</span>`;
+                    
+                    profileAvatarDisplay.innerHTML = emojiHtml;
+                    headerAvatarDisplay.innerHTML = headerEmojiHtml;
+                    
+                    headerAvatarDisplay.setAttribute('onclick', 'toggleUserMenu()');
+                    headerAvatarDisplay.style.cursor = 'pointer';
+                    
+                    console.log('已加载emoji头像');
+                }
+            } else {
+                const profileAvatarDisplay = document.getElementById('profile-avatar-display');
+                const headerAvatarDisplay = document.getElementById('header-avatar-display');
+                
+                const defaultEmoji = '🐱';
+                const emojiHtml = `<span class="avatar-large-emoji">${defaultEmoji}</span>`;
+                const headerEmojiHtml = `<span class="avatar-emoji">${defaultEmoji}</span>`;
+                
+                profileAvatarDisplay.innerHTML = emojiHtml;
+                headerAvatarDisplay.innerHTML = headerEmojiHtml;
+                
+                headerAvatarDisplay.setAttribute('onclick', 'toggleUserMenu()');
+                headerAvatarDisplay.style.cursor = 'pointer';
+                
+                console.log('已加载默认头像');
+            }
+        }
+
+        let csWidget = null;
+        let csWidgetDragging = false;
+        let csWidgetOffset = { x: 0, y: 0 };
+
+        function toggleCustomerService() {
+            const panel = document.getElementById('csPanel');
+            panel.classList.toggle('show');
+        }
+
+        function initCustomerServiceDrag() {
+            csWidget = document.querySelector('.customer-service-widget');
+            
+            csWidget.addEventListener('mousedown', startCsDrag);
+            csWidget.addEventListener('touchstart', startCsDrag);
+            
+            document.addEventListener('mousemove', doCsDrag);
+            document.addEventListener('touchmove', doCsDrag);
+            
+            document.addEventListener('mouseup', stopCsDrag);
+            document.addEventListener('touchend', stopCsDrag);
+        }
+
+        function startCsDrag(e) {
+            if (e.target.closest('.cs-panel') || e.target.closest('.cs-toggle-btn')) {
+                return;
+            }
+            
+            if (!csWidget.contains(e.target)) {
+                return;
+            }
+            
+            e.preventDefault();
+            csWidgetDragging = true;
+            csWidget.classList.add('dragging');
+            
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            
+            const rect = csWidget.getBoundingClientRect();
+            csWidgetOffset.x = clientX - rect.left;
+            csWidgetOffset.y = clientY - rect.top;
+        }
+
+        function doCsDrag(e) {
+            if (!csWidgetDragging) return;
+            
+            e.preventDefault();
+            
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            
+            let newX = clientX - csWidgetOffset.x;
+            let newY = clientY - csWidgetOffset.y;
+            
+            const maxX = window.innerWidth - csWidget.offsetWidth;
+            const maxY = window.innerHeight - csWidget.offsetHeight;
+            
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(0, Math.min(newY, maxY));
+            
+            csWidget.style.left = newX + 'px';
+            csWidget.style.top = newY + 'px';
+            csWidget.style.right = 'auto';
+            csWidget.style.bottom = 'auto';
+        }
+
+        function stopCsDrag() {
+            if (csWidgetDragging) {
+                csWidgetDragging = false;
+                csWidget.classList.remove('dragging');
+            }
+        }
+
+        function handleCsKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendCsMessage();
+            }
+        }
+
+        function sendCsMessage() {
+            const input = document.getElementById('csInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesContainer = document.getElementById('csMessages');
+            
+            const userMessage = document.createElement('div');
+            userMessage.className = 'cs-message cs-message-user';
+            userMessage.innerHTML = `
+                <span class="cs-message-content">${message}</span>
+                <span class="cs-message-time">刚刚</span>
+            `;
+            messagesContainer.appendChild(userMessage);
+            
+            input.value = '';
+            
+            setTimeout(() => {
+                const responses = [
+                    '感谢您的咨询，我们会尽快为您处理！',
+                    '您的问题已收到，客服稍后会联系您。',
+                    '好的，我明白了您的需求。',
+                    '请稍等，正在为您查询相关信息...',
+                    '感谢您的耐心等待，我们正在处理中。'
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                
+                const systemMessage = document.createElement('div');
+                systemMessage.className = 'cs-message cs-message-system';
+                systemMessage.innerHTML = `
+                    <span class="cs-message-content">${randomResponse}</span>
+                    <span class="cs-message-time">刚刚</span>
+                `;
+                messagesContainer.appendChild(systemMessage);
+                
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 1000);
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function logout() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content confirm-modal">
+                    <div class="modal-header">
+                        <h3>确认退出</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>确定要退出登录吗？</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeLogoutModal()">取消</button>
+                        <button class="btn btn-primary" onclick="confirmLogout()">确定</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.style.display = 'flex';
+        }
+
+        function closeLogoutModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function confirmLogout() {
+            SessionManager.logout();
+            showNotification('已退出登录', 'success');
+            closeLogoutModal();
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : type === 'info' ? 'info' : ''}`;
+            notification.classList.remove('hidden');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-menu')) {
+                closeUserMenu();
+            }
+        });
+
+        document.querySelectorAll('.order-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+
+    <div class="customer-service-widget">
+        <button class="cs-toggle-btn" onclick="toggleCustomerService()">
+            <span class="cs-icon">💬</span>
+        </button>
+        <div class="cs-panel" id="csPanel">
+            <div class="cs-header">
+                <h3>客服对话</h3>
+                <button onclick="toggleCustomerService()" class="cs-close">&times;</button>
+            </div>
+            <div class="cs-messages" id="csMessages">
+                <div class="cs-message cs-message-system">
+                    <span class="cs-message-content">您好！我是智能客服，有什么可以帮助您的吗？</span>
+                    <span class="cs-message-time">刚刚</span>
+                </div>
+            </div>
+            <div class="cs-input-area">
+                <input type="text" id="csInput" placeholder="输入您的问题..." onkeypress="handleCsKeyPress(event)">
+                <button onclick="sendCsMessage()" class="cs-send-btn">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="avatar-modal" class="avatar-modal hidden">
+        <div class="avatar-modal-content">
+            <div class="avatar-modal-header">
+                <h3>调整头像</h3>
+                <button class="avatar-modal-close" onclick="closeAvatarModal()">&times;</button>
+            </div>
+            <div class="avatar-modal-body">
+                <div class="avatar-upload-area">
+                    <input type="file" id="avatar-file-input" accept="image/*" style="display: none;" onchange="handleAvatarFileSelect(event)">
+                    <button class="btn btn-secondary" onclick="document.getElementById('avatar-file-input').click()">选择图片</button>
+                </div>
+                <div class="avatar-preview-container">
+                    <div class="avatar-crop-area" id="avatar-crop-area">
+                        <img id="avatar-crop-image" src="" alt="裁剪图片">
+                        <div class="avatar-crop-overlay"></div>
+                    </div>
+                </div>
+                <div class="avatar-controls">
+                    <div class="avatar-control-group">
+                        <label>缩放</label>
+                        <input type="range" id="avatar-scale" min="0.5" max="3" step="0.01" value="1" oninput="updateAvatarTransform()">
+                        <span id="avatar-scale-value">1.00x</span>
+                    </div>
+                    <div class="avatar-control-group">
+                        <label>位置X</label>
+                        <input type="range" id="avatar-x" min="-100" max="100" step="1" value="0" oninput="updateAvatarTransform()">
+                        <span id="avatar-x-value">0px</span>
+                    </div>
+                    <div class="avatar-control-group">
+                        <label>位置Y</label>
+                        <input type="range" id="avatar-y" min="-100" max="100" step="1" value="0" oninput="updateAvatarTransform()">
+                        <span id="avatar-y-value">0px</span>
+                    </div>
+                </div>
+            </div>
+            <div class="avatar-modal-footer">
+                <button class="btn btn-secondary" onclick="closeAvatarModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveAvatarFromModal()">保存</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>购物车 - DozingCat</title>
+    <link rel="stylesheet" href="css/style.css?v=1.0.5" id="style-css">
+    <link rel="stylesheet" href="css/taobao-shopify-cart.css?v=1.0.32" id="cart-css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="js/security.js"></script>
+    <script src="js/session-manager.js"></script>
+    <script src="js/language.js?v=1.0.2"></script>
+    <script src="js/user-data-manager.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>DozingCat</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" data-lang="nav.home">首页</a>
+                <a href="index.html#collections" data-lang="nav.collections">系列</a>
+                <a href="index.html#about" data-lang="nav.about">关于</a>
+                <div class="nav-right-section">
+                    <button onclick="toggleLanguage()" class="lang-btn" id="cart-lang-btn">EN</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="taobao-shopify-cart-page">
+        <div class="taobao-shopify-cart-banner">
+            <div class="banner-content">
+                <div class="logo-animation">
+                    <span class="logo-text">DozingCat</span>
+                    <span class="logo-emoji">🐱</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="taobao-shopify-cart-container">
+            <div class="taobao-shopify-cart-header">
+                <div class="header-main-section">
+                    <div class="header-checkbox">
+                        <input type="checkbox" id="select-all" onchange="toggleSelectAll()">
+                        <label for="select-all" data-lang="cart.selectAll">全选</label>
+                    </div>
+                    <div class="header-image" data-lang="cart.image">产品图片</div>
+                    <div class="header-product" data-lang="cart.product">商品信息</div>
+                    <div class="header-price" data-lang="cart.price">价格</div>
+                    <div class="header-quantity" data-lang="cart.quantity">数量</div>
+                    <div class="header-subtotal" data-lang="cart.subtotal">小计</div>
+                    <div class="header-action" data-lang="cart.action">操作</div>
+                </div>
+            </div>
+
+            <div id="taobao-shopify-cart-items" class="taobao-shopify-cart-items">
+            </div>
+            
+            <div id="empty-cart-message" class="empty-cart-message hidden">
+                <p data-lang="cart.empty">您的购物车是空的</p>
+                <button onclick="window.location.href='index.html'" class="continue-shopping" data-lang="cart.continue">继续购物</button>
+            </div>
+        </div>
+
+        <div class="taobao-shopify-cart-footer">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <div class="footer-checkbox">
+                        <input type="checkbox" id="footer-select-all" onchange="toggleSelectAll()">
+                        <label for="footer-select-all" data-lang="cart.selectAll">全选</label>
+                    </div>
+                    <button onclick="deleteSelected()" class="delete-selected-btn" data-lang="cart.deleteSelected">删除选中</button>
+                    <button onclick="clearCart()" class="clear-cart-btn" data-lang="cart.clearCart">清空购物车</button>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-info">
+                        <span data-lang="cart.selectedCount">已选商品 <strong id="selected-count">0</strong> 件</span>
+                        <span data-lang="cart.total">合计：<strong class="total-price" id="total-price">¥0.00</strong></span>
+                    </div>
+                    <button onclick="proceedToCheckout()" class="checkout-btn" data-lang="cart.checkout">
+                        去结算
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let selectedItems = [];
+        let currentLang = localStorage.getItem('language') || 'zh';
+        let currentCurrency = localStorage.getItem('currency') || 'CNY';
+        
+        const currencySymbols = {
+            'CNY': '¥',
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'JPY': '¥'
+        };
+
+        const currencyRates = {
+            'CNY': 1,
+            'USD': 0.14,
+            'EUR': 0.13,
+            'GBP': 0.11,
+            'JPY': 20.5
+        };
+
+        function formatPrice(price) {
+            const symbol = currencySymbols[currentCurrency];
+            const convertedPrice = price * currencyRates[currentCurrency];
+            return `${symbol}${convertedPrice.toFixed(2)}`;
+        }
+
+        function loadCart() {
+            console.log('loadCart - 开始加载购物车数据');
+            const cartData = localStorage.getItem('cart');
+            console.log('loadCart - localStorage中的cart数据:', cartData);
+            
+            if (cartData) {
+                try {
+                    cart = JSON.parse(cartData);
+                    selectedItems = [...cart];
+                    console.log('loadCart - 解析后的cart数据:', cart);
+                    console.log('loadCart - selectedItems:', selectedItems);
+                } catch (e) {
+                    console.error('loadCart - 解析cart数据失败:', e);
+                    cart = [];
+                    selectedItems = [];
+                }
+            } else {
+                console.log('loadCart - localStorage中没有cart数据');
+                cart = [];
+                selectedItems = [];
+            }
+            currentLang = localStorage.getItem('language') || 'zh';
+            
+            const langBtn = document.getElementById('cart-lang-btn');
+            if (langBtn) {
+                langBtn.textContent = currentLang === 'zh' ? 'EN' : '中文';
+            }
+            
+            renderCart();
+        }
+
+        function saveCart() {
+            console.log('saveCart - 开始保存购物车数据');
+            console.log('saveCart - 当前cart数据:', cart);
+            try {
+                localStorage.setItem('cart', JSON.stringify(cart));
+                console.log('saveCart - 保存成功');
+            } catch (e) {
+                console.error('saveCart - 保存失败:', e);
+            }
+        }
+
+        function toggleLanguage() {
+            const newLang = currentLang === 'zh' ? 'en' : 'zh';
+            currentLang = newLang;
+            localStorage.setItem('language', newLang);
+            
+            const translations = window.translations;
+            if (translations) {
+                const langBtn = document.getElementById('cart-lang-btn');
+                if (langBtn) {
+                    langBtn.textContent = newLang === 'zh' ? 'EN' : '中文';
+                }
+                
+                document.querySelectorAll('[data-lang]').forEach(element => {
+                    const key = element.getAttribute('data-lang');
+                    if (translations[newLang][key]) {
+                        element.innerHTML = translations[newLang][key];
+                    }
+                });
+                
+                document.documentElement.lang = newLang === 'zh' ? 'zh-CN' : 'en';
+            }
+            
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('taobao-shopify-cart-items');
+            const emptyMessage = document.getElementById('empty-cart-message');
+            const selectAllCheckbox = document.getElementById('select-all');
+            const footerSelectAllCheckbox = document.getElementById('footer-select-all');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '';
+                emptyMessage.classList.remove('hidden');
+                updateOrderSummary();
+                return;
+            }
+            
+            emptyMessage.classList.add('hidden');
+            
+            const allSelected = cart.every(item => item.selected);
+            selectAllCheckbox.checked = allSelected;
+            footerSelectAllCheckbox.checked = allSelected;
+            
+            container.innerHTML = cart.map(item => {
+                const itemName = typeof item.name === 'object' ? item.name[currentLang] : item.name;
+                const itemDesc = item.description && typeof item.description === 'object' ? item.description[currentLang] : (item.description || '');
+                const subtotal = item.price * item.quantity;
+                const isSelected = item.selected !== false;
+                
+                return `
+                    <div class="taobao-shopify-cart-item" data-id="${item.id}">
+                        <div class="item-main-section">
+                            <div class="item-checkbox">
+                                <input type="checkbox" 
+                                       class="item-select-checkbox" 
+                                       data-id="${item.id}" 
+                                       ${isSelected ? 'checked' : ''} 
+                                       onchange="toggleItemSelection(${item.id})">
+                            </div>
+                            <div class="item-image">
+                                ${item.image ? `<img src="${item.image}" alt="${itemName}">` : `<div class="no-image">🐱</div>`}
+                            </div>
+                            <div class="item-details">
+                                <h3 class="item-name">${itemName}</h3>
+                                <p class="item-desc">${itemDesc || '默认规格'}</p>
+                            </div>
+                            <div class="item-price">${formatPrice(item.price)}</div>
+                            <div class="item-quantity">
+                                <button onclick="updateQuantity(${item.id}, -1)" class="qty-btn">-</button>
+                                <span class="qty-value">${item.quantity}</span>
+                                <button onclick="updateQuantity(${item.id}, 1)" class="qty-btn">+</button>
+                            </div>
+                            <div class="item-subtotal">${formatPrice(subtotal)}</div>
+                            <div class="item-action">
+                                <button onclick="removeFromCart(${item.id})" class="delete-btn">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateOrderSummary();
+        }
+
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('select-all');
+            const footerSelectAllCheckbox = document.getElementById('footer-select-all');
+            
+            const isChecked = footerSelectAllCheckbox.checked;
+            
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = isChecked;
+            }
+            
+            cart.forEach(item => {
+                item.selected = isChecked;
+            });
+            
+            const checkboxes = document.querySelectorAll('.item-select-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            
+            saveCart();
+            updateOrderSummary();
+        }
+
+        function toggleItemSelection(itemId) {
+            const item = cart.find(i => i.id === itemId);
+            if (item) {
+                item.selected = !item.selected;
+                saveCart();
+                updateOrderSummary();
+                
+                const allSelected = cart.every(i => i.selected);
+                document.getElementById('select-all').checked = allSelected;
+                document.getElementById('footer-select-all').checked = allSelected;
+            }
+        }
+
+        function updateQuantity(productId, change) {
+            const item = cart.find(i => i.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                    return;
+                }
+                saveCart();
+                renderCart();
+            }
+        }
+
+        function removeFromCart(productId) {
+            if (confirm('确定要删除这个商品吗？')) {
+                cart = cart.filter(i => i.id !== productId);
+                selectedItems = selectedItems.filter(i => i.id !== productId);
+                saveCart();
+                renderCart();
+            }
+        }
+
+        function deleteSelected() {
+            const selectedItems = cart.filter(item => item.selected);
+            if (selectedItems.length === 0) {
+                alert('请先选择要删除的商品');
+                return;
+            }
+            
+            if (confirm(`确定要删除选中的 ${selectedItems.length} 个商品吗？`)) {
+                cart = cart.filter(item => !item.selected);
+                selectedItems = selectedItems.filter(item => !item.selected);
+                saveCart();
+                renderCart();
+            }
+        }
+
+        function clearCart() {
+            if (cart.length === 0) {
+                alert('购物车已经是空的');
+                return;
+            }
+            
+            if (confirm('确定要清空购物车吗？')) {
+                cart = [];
+                selectedItems = [];
+                saveCart();
+                renderCart();
+            }
+        }
+
+        function updateOrderSummary() {
+            const selectedItemsList = cart.filter(item => item.selected);
+            const selectedCount = selectedItemsList.reduce((sum, item) => sum + item.quantity, 0);
+            const subtotal = selectedItemsList.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = subtotal > 0 ? 10 : 0;
+            const total = subtotal + shipping;
+            
+            const selectedCountElement = document.getElementById('selected-count');
+            const totalPriceElement = document.querySelector('.total-price');
+            
+            if (selectedCountElement) {
+                selectedCountElement.textContent = selectedCount;
+            }
+            if (totalPriceElement) {
+                totalPriceElement.textContent = formatPrice(total);
+            }
+        }
+
+        function proceedToCheckout() {
+            const selectedItemsList = cart.filter(item => item.selected);
+            if (selectedItemsList.length === 0) {
+                alert('请先选择要结算的商品');
+                return;
+            }
+            
+            localStorage.setItem('selectedItems', JSON.stringify(selectedItemsList));
+            window.location.href = 'checkout.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            SessionManager.init();
+            checkLoginStatus();
+            loadCart();
+        });
+
+        function checkLoginStatus() {
+            const isLoggedIn = SessionManager.isLoggedIn();
+            
+            const cartMemberLoginBtn = document.getElementById('cart-member-login-btn');
+            const cartNavMemberSection = document.getElementById('cart-nav-member-section');
+            const cartLoginLangGroup = document.getElementById('cart-login-lang-group');
+            const cartCount = document.getElementById('cart-count');
+            
+            if (isLoggedIn) {
+                if (cartMemberLoginBtn) cartMemberLoginBtn.classList.add('hidden');
+                if (cartLoginLangGroup) cartLoginLangGroup.classList.add('hidden');
+                if (cartNavMemberSection) cartNavMemberSection.classList.remove('hidden');
+                
+                if (cartCount) {
+                    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+                    cartCount.textContent = `(${count})`;
+                }
+            } else {
+                if (cartMemberLoginBtn) cartMemberLoginBtn.classList.remove('hidden');
+                if (cartLoginLangGroup) cartLoginLangGroup.classList.remove('hidden');
+                if (cartNavMemberSection) cartNavMemberSection.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

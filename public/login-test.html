@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录测试 - DozingCat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background: #5568d3;
+        }
+        .btn-danger {
+            background: #ef4444;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #333;
+        }
+        .log-time {
+            color: #4ec9b0;
+        }
+        .log-message {
+            color: #ce9178;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 登录功能测试</h1>
+    
+    <div class="test-section">
+        <h2>当前状态</h2>
+        <div id="status-display" class="status status-info">检查中...</div>
+        <button class="btn" onclick="checkStatus()">刷新状态</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>会员登录测试</h2>
+        <div class="form-group">
+            <label for="test-email">邮箱</label>
+            <input type="text" id="test-email" placeholder="test@example.com" value="test@example.com">
+        </div>
+        <div class="form-group">
+            <label for="test-password">密码</label>
+            <input type="password" id="test-password" placeholder="任意密码" value="123456">
+        </div>
+        <button class="btn" onclick="testLogin()">测试登录</button>
+        <button class="btn btn-danger" onclick="testLogout()">测试退出</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>存储数据检查</h2>
+        <button class="btn" onclick="showStorageData()">显示存储数据</button>
+        <button class="btn btn-danger" onclick="clearStorage()">清除所有存储</button>
+        <div id="storage-display" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>操作日志</h2>
+        <div id="log-display" class="log"></div>
+        <button class="btn" onclick="clearLog()">清除日志</button>
+    </div>
+
+    <script src="js/session-manager.js"></script>
+    <script>
+        function log(message, type = 'info') {
+            const logDisplay = document.getElementById('log-display');
+            const now = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-time">[${now}]</span> <span class="log-message">[${type}] ${message}</span>`;
+            logDisplay.insertBefore(entry, logDisplay.firstChild);
+        }
+        
+        function clearLog() {
+            document.getElementById('log-display').innerHTML = '';
+        }
+        
+        function checkStatus() {
+            const statusDisplay = document.getElementById('status-display');
+            const isLoggedIn = SessionManager.isLoggedIn();
+            const sessionData = SessionManager.getSessionData();
+            
+            log('检查登录状态...', 'info');
+            
+            if (isLoggedIn) {
+                statusDisplay.className = 'status status-success';
+                statusDisplay.innerHTML = `
+                    <strong>✅ 已登录</strong><br>
+                    邮箱: ${sessionData.userData.email || '未知'}<br>
+                    登录时间: ${new Date(sessionData.loginTime).toLocaleString()}<br>
+                    最后活动: ${new Date(sessionData.lastActivity).toLocaleString()}
+                `;
+                log('用户已登录', 'success');
+            } else {
+                statusDisplay.className = 'status status-error';
+                statusDisplay.innerHTML = '<strong>❌ 未登录</strong>';
+                log('用户未登录', 'error');
+            }
+        }
+        
+        function testLogin() {
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            
+            log(`尝试登录: ${email}`, 'info');
+            
+            if (!email || !password) {
+                log('请填写邮箱和密码', 'error');
+                return;
+            }
+            
+            try {
+                SessionManager.login({
+                    email: email,
+                    loginTime: new Date().toISOString()
+                });
+                
+                log('登录请求已发送', 'info');
+                
+                setTimeout(() => {
+                    const isLoggedIn = SessionManager.isLoggedIn();
+                    if (isLoggedIn) {
+                        log('登录成功！', 'success');
+                        checkStatus();
+                    } else {
+                        log('登录失败：会话未创建', 'error');
+                    }
+                }, 100);
+            } catch (error) {
+                log(`登录错误: ${error.message}`, 'error');
+            }
+        }
+        
+        function testLogout() {
+            log('尝试退出登录...', 'info');
+            SessionManager.logout();
+            log('已退出登录', 'success');
+            checkStatus();
+        }
+        
+        function showStorageData() {
+            const storageDisplay = document.getElementById('storage-display');
+            const data = {
+                sessionStorage: {},
+                localStorage: {}
+            };
+            
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                data.sessionStorage[key] = sessionStorage.getItem(key);
+            }
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                data.localStorage[key] = localStorage.getItem(key);
+            }
+            
+            storageDisplay.innerHTML = `<div class="log-entry"><span class="log-time">[存储数据]</span> <span class="log-message">${JSON.stringify(data, null, 2)}</span></div>`;
+            log('已显示存储数据', 'info');
+        }
+        
+        function clearStorage() {
+            if (confirm('确定要清除所有存储数据吗？')) {
+                sessionStorage.clear();
+                localStorage.clear();
+                log('已清除所有存储数据', 'success');
+                checkStatus();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            log('页面加载完成', 'info');
+            SessionManager.init();
+            setTimeout(() => {
+                checkStatus();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - DozingCat</title>
+    <link rel="stylesheet" href="css/style.css?v=1.0.7">
+    <link rel="stylesheet" href="css/icons.css?v=1.0.7">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-manager.js"></script>
+    <script src="js/security.js"></script>
+    <script src="js/session-manager.js"></script>
+    <style>
+        .customer-service-widget {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <header class="admin-header">
+            <div class="header-container">
+                <div class="header-left">
+                    <h1 class="brand-logo">
+                        <svg class="brand-logo-icon">
+                            <use href="icons.svg#icon-cat"></use>
+                        </svg>
+                        DozingCat
+                    </h1>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content-wrapper">
+            <nav class="admin-sidebar">
+                <div class="admin-brand">
+                </div>
+                <div class="admin-menu">
+                    <button onclick="showSection('dashboard')" class="menu-btn active" style="width: 100%; display: flex; align-items: center; justify-content: flex-start;">
+                        <span>🌸</span> 仪表盘
+                    </button>
+                    <button onclick="showSection('products')" class="menu-btn" style="width: 100%; display: flex; align-items: center; justify-content: flex-start;">
+                        <span>🎀</span> 商品管理
+                    </button>
+                    <button onclick="showSection('orders')" class="menu-btn" style="width: 100%; display: flex; align-items: center; justify-content: flex-start;">
+                        <span>💖</span> 订单管理
+                    </button>
+                    <button onclick="showSection('analytics')" class="menu-btn" style="width: 100%; display: flex; align-items: center; justify-content: flex-start;">
+                        <span>📈</span> 数据分析
+                    </button>
+                    <button onclick="showSection('customer-service')" class="menu-btn" style="width: 100%; display: flex; align-items: center; justify-content: flex-start;">
+                        <span>💬</span> 客服管理
+                    </button>
+                    <button onclick="showSection('ai-tools')" class="menu-btn" style="width: 100%; display: flex; align-items: center; justify-content: flex-start;">
+                        <span>✨</span> AI工具
+                    </button>
+                </div>
+                <div class="admin-footer">
+                    <button onclick="logout()" class="logout-btn">退出登录</button>
+                </div>
+            </nav>
+
+            <main class="admin-content">
+            <div class="search-section">
+                <div class="search-bar">
+                    <input type="text" placeholder="搜索商品..." class="search-input">
+                    <button class="search-btn">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="dashboard-section" class="admin-section">
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎀</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="total-products">0</div>
+                            <div class="stat-label">商品总数</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💖</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="total-orders">0</div>
+                            <div class="stat-label">订单总数</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="total-sales">¥0.00</div>
+                            <div class="stat-label">总销售额</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🚚</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="pending-shipping">0</div>
+                            <div class="stat-label">待发货订单</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="recent-orders">
+                    <h3>最近活动</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <span class="activity-time">刚刚</span>
+                            <span class="activity-text">新订单 #1234</span>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-time">5分钟前</span>
+                            <span class="activity-text">商品"可爱猫咪玩偶"库存不足</span>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-time">10分钟前</span>
+                            <span class="activity-text">AI处理了3张商品图片</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="products-section" class="admin-section hidden">
+                <div class="section-header">
+                    <h2>商品管理</h2>
+                    <button onclick="showAddProductModal()" class="btn btn-primary">+ 添加商品</button>
+                </div>
+                <div class="products-toolbar">
+                    <div class="search-wrapper">
+                        <input type="text" id="product-search" placeholder="搜索商品..." oninput="filterProducts()">
+                        <button class="search-icon-btn">
+                            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <select id="product-filter" onchange="filterProducts()">
+                        <option value="all">全部商品</option>
+                        <option value="in-stock">有库存</option>
+                        <option value="out-of-stock">缺货</option>
+                    </select>
+                </div>
+                <div id="products-list" class="products-list"></div>
+            </div>
+
+            <div id="orders-section" class="admin-section hidden">
+                <div class="section-header">
+                    <h2>订单管理</h2>
+                    <div class="orders-filters">
+                        <button class="filter-btn active" onclick="filterOrders('all')">全部</button>
+                        <button class="filter-btn" onclick="filterOrders('pending')">待付款</button>
+                        <button class="filter-btn" onclick="filterOrders('paid')">已付款</button>
+                        <button class="filter-btn" onclick="filterOrders('shipped')">已发货</button>
+                    </div>
+                </div>
+                <div id="orders-list" class="orders-list"></div>
+            </div>
+
+            <div id="analytics-section" class="admin-section hidden">
+                <div class="section-header">
+                    <h2>数据分析</h2>
+                </div>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>销售趋势</h3>
+                        <div class="chart-placeholder">
+                            <div class="chart-bar" style="height: 60%"></div>
+                            <div class="chart-bar" style="height: 80%"></div>
+                            <div class="chart-bar" style="height: 45%"></div>
+                            <div class="chart-bar" style="height: 90%"></div>
+                            <div class="chart-bar" style="height: 70%"></div>
+                        </div>
+                        <div class="chart-labels">
+                            <span>周一</span>
+                            <span>周二</span>
+                            <span>周三</span>
+                            <span>周四</span>
+                            <span>周五</span>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>热门商品</h3>
+                        <div class="top-products">
+                            <div class="top-product-item">
+                                <span class="rank">1</span>
+                                <span class="product-name">可爱猫咪玩偶</span>
+                                <span class="product-sales">销量: 156</span>
+                            </div>
+                            <div class="top-product-item">
+                                <span class="rank">2</span>
+                                <span class="product-name">粉色猫咪马克杯</span>
+                                <span class="product-sales">销量: 98</span>
+                            </div>
+                            <div class="top-product-item">
+                                <span class="rank">3</span>
+                                <span class="product-name">猫咪主题笔记本</span>
+                                <span class="product-sales">销量: 67</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>客户分析</h3>
+                        <div class="customer-stats">
+                            <div class="customer-stat">
+                                <span class="stat-label">新增客户</span>
+                                <span class="stat-value">+24</span>
+                            </div>
+                            <div class="customer-stat">
+                                <span class="stat-label">回头客</span>
+                                <span class="stat-value">68%</span>
+                            </div>
+                            <div class="customer-stat">
+                                <span class="stat-label">平均订单</span>
+                                <span class="stat-value">¥156.80</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="customer-service-section" class="admin-section hidden">
+                <div class="section-header">
+                    <h2>客服管理</h2>
+                    <p>管理客户咨询和对话</p>
+                    <div class="cs-actions">
+                        <button onclick="showAutoReplyModal()" class="btn btn-primary">🤖 启动自动客服</button>
+                    </div>
+                </div>
+                <div class="customer-service-container">
+                    <div class="cs-sidebar">
+                        <div class="cs-header">
+                            <h3>咨询列表</h3>
+                            <span class="cs-count">3</span>
+                        </div>
+                        <div class="cs-conversations">
+                            <div class="cs-conversation active" onclick="switchCustomer(1)">
+                                <div class="cs-avatar">👩</div>
+                                <div class="cs-info">
+                                    <h4>客户 #001</h4>
+                                    <p>请问这个商品有货吗？</p>
+                                    <span class="cs-time">刚刚</span>
+                                </div>
+                                <span class="cs-unread">2</span>
+                            </div>
+                            <div class="cs-conversation" onclick="switchCustomer(2)">
+                                <div class="cs-avatar">👨</div>
+                                <div class="cs-info">
+                                    <h4>客户 #002</h4>
+                                    <p>什么时候能发货？</p>
+                                    <span class="cs-time">5分钟前</span>
+                                </div>
+                                <span class="cs-unread">1</span>
+                            </div>
+                            <div class="cs-conversation" onclick="switchCustomer(3)">
+                                <div class="cs-avatar">👩</div>
+                                <div class="cs-info">
+                                    <h4>客户 #003</h4>
+                                    <p>可以退款吗？</p>
+                                    <span class="cs-time">10分钟前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cs-chat-area">
+                        <div class="cs-chat-header">
+                            <h3>客户 #001</h3>
+                            <span class="cs-status">在线</span>
+                        </div>
+                        <div class="cs-messages">
+                            <div class="cs-message cs-message-customer">
+                                <div class="cs-avatar">👩</div>
+                                <div class="cs-content">
+                                    <p>您好，请问这个商品有货吗？</p>
+                                    <span class="cs-time">14:30</span>
+                                </div>
+                            </div>
+                            <div class="cs-message cs-message-admin">
+                                <div class="cs-content">
+                                    <p>您好！请问您指的是哪个商品呢？</p>
+                                    <span class="cs-time">14:31</span>
+                                </div>
+                                <div class="cs-avatar">🐱</div>
+                            </div>
+                            <div class="cs-message cs-message-customer">
+                                <div class="cs-avatar">👩</div>
+                                <div class="cs-content">
+                                    <p>就是那个可爱的猫咪玩偶</p>
+                                    <span class="cs-time">14:32</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cs-input-area">
+                            <input type="text" id="adminCsInput" placeholder="输入回复内容..." onkeypress="handleAdminCsKeyPress(event)">
+                            <button onclick="sendAdminCsMessage()" class="cs-send-btn">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ai-tools-section" class="admin-section hidden">
+                <div class="section-header">
+                    <h2>AI智能工具</h2>
+                </div>
+                <div class="ai-tools-grid">
+                    <div class="ai-tool-card">
+                        <div class="ai-tool-icon">🖼️</div>
+                        <h3>AI图片处理</h3>
+                        <p>一键调整图片尺寸，自动生成白色背景商业图</p>
+                        <button onclick="showAIImageModal()" class="btn btn-primary">使用AI图片处理</button>
+                    </div>
+                    <div class="ai-tool-card">
+                        <div class="ai-tool-icon">🎀</div>
+                        <h3>智能商品管理</h3>
+                        <p>AI自动分析商品数据，提供优化建议</p>
+                        <button onclick="analyzeProducts()" class="btn btn-secondary">分析商品</button>
+                    </div>
+                    <div class="ai-tool-card">
+                        <div class="ai-tool-icon">🚚</div>
+                        <h3>智能发货</h3>
+                        <p>AI自动整理订单地址，优化发货流程</p>
+                        <button onclick="autoProcessShipping()" class="btn btn-secondary">智能发货</button>
+                    </div>
+                    <div class="ai-tool-card">
+                        <div class="ai-tool-icon">💬</div>
+                        <h3>智能客服</h3>
+                        <p>AI自动回复客户咨询，提升服务效率</p>
+                        <button onclick="startCustomerService()" class="btn btn-secondary">启动客服</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    </div>
+
+    <div id="edit-product-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑商品</h3>
+                <button onclick="closeEditProductModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-product-form" onsubmit="saveEditProduct(event)">
+                    <input type="hidden" name="edit-product-id" id="edit-product-id">
+                    <div class="form-group">
+                        <label>商品名称</label>
+                        <input type="text" name="name" id="edit-product-name" required placeholder="请输入商品名称">
+                    </div>
+                    <div class="form-group">
+                        <label>商品描述</label>
+                        <textarea name="description" id="edit-product-description" rows="3" required placeholder="请输入商品描述"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>价格 (¥)</label>
+                        <input type="number" name="price" id="edit-product-price" step="0.01" required placeholder="请输入价格">
+                    </div>
+                    <div class="form-group">
+                        <label>库存</label>
+                        <input type="number" name="stock" id="edit-product-stock" required placeholder="请输入库存数量">
+                    </div>
+                    <div class="form-group">
+                        <label>商品图片</label>
+                        <input type="file" name="image" accept="image/*" id="edit-product-image-input" onchange="previewEditProductImage()">
+                        <div id="edit-image-preview" class="image-preview"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" onclick="closeEditProductModal()" class="btn btn-secondary">取消</button>
+                        <button type="submit" class="btn btn-primary">保存修改</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-product-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加商品</h3>
+                <button onclick="closeAddProductModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="product-form" onsubmit="addProduct(event)">
+                    <div class="form-group">
+                        <label>商品名称</label>
+                        <input type="text" name="name" required placeholder="请输入商品名称">
+                    </div>
+                    <div class="form-group">
+                        <label>商品描述</label>
+                        <textarea name="description" rows="3" required placeholder="请输入商品描述"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>价格 (¥)</label>
+                        <input type="number" name="price" step="0.01" required placeholder="请输入价格">
+                    </div>
+                    <div class="form-group">
+                        <label>库存</label>
+                        <input type="number" name="stock" required placeholder="请输入库存数量">
+                    </div>
+                    <div class="form-group">
+                        <label>商品图片</label>
+                        <input type="file" name="image" accept="image/*" id="product-image-input" onchange="previewProductImage()">
+                        <button type="button" onclick="processImageWithAI()" class="btn btn-secondary ai-btn">
+                            🤖 AI处理图片（自动调整尺寸+白色背景）
+                        </button>
+                        <div id="image-preview" class="image-preview"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" onclick="closeAddProductModal()" class="btn btn-secondary">取消</button>
+                        <button type="submit" class="btn btn-primary">添加商品</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="ai-image-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>AI图片处理</h3>
+                <button onclick="closeAIImageModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>上传图片</label>
+                    <input type="file" id="ai-image-input" accept="image/*" onchange="previewAIImage()">
+                </div>
+                <div id="ai-image-preview" class="image-preview"></div>
+                <div class="ai-options">
+                    <h4>处理选项</h4>
+                    <div class="option-group">
+                        <label>选择尺寸：</label>
+                        <select id="image-size-select" onchange="updateSizeInfo()">
+                            <option value="800x800">800x800px (淘宝主图)</option>
+                            <option value="750x1000">750x1000px (详情图)</option>
+                            <option value="100x100">100x100px (缩略图)</option>
+                            <option value="custom">自定义尺寸</option>
+                        </select>
+                    </div>
+                    <div class="option-group custom-size-group hidden" id="custom-size-group">
+                        <label>宽度：</label>
+                        <input type="number" id="custom-width" value="800" min="100" max="2000">
+                        <label>高度：</label>
+                        <input type="number" id="custom-height" value="800" min="100" max="2000">
+                    </div>
+                    <label>
+                        <input type="checkbox" checked id="auto-white-bg"> 自动生成白色背景
+                    </label>
+                    <label>
+                        <input type="checkbox" id="optimize-quality"> 优化图片质量
+                    </label>
+                </div>
+                <div class="preview-section">
+                    <h4>首页预览效果</h4>
+                    <div class="preview-container">
+                        <div class="preview-item">
+                            <h5>商品卡片预览</h5>
+                            <div class="product-card-preview">
+                                <div class="product-image-preview" id="product-image-preview">
+                                    <span class="preview-placeholder">上传图片预览</span>
+                                </div>
+                                <div class="product-info-preview">
+                                    <h4>商品名称</h4>
+                                    <p class="price">¥99.99</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="preview-item">
+                            <h5>轮播图预览</h5>
+                            <div class="carousel-preview">
+                                <div class="carousel-image-preview" id="carousel-image-preview">
+                                    <span class="preview-placeholder">上传图片预览</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeAIImageModal()" class="btn btn-secondary">取消</button>
+                    <button onclick="processAIImage()" class="btn btn-primary">开始处理</button>
+                    <button onclick="downloadAIImage()" class="btn btn-secondary">下载处理后的图片</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div id="auto-reply-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🤖 智能客服设置</h3>
+                    <button onclick="closeAutoReplyModal()" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>选择产品</label>
+                        <select id="product-select" onchange="loadProductReply()">
+                            <option value="doll">可爱猫咪玩偶</option>
+                            <option value="mug">粉色猫咪马克杯</option>
+                            <option value="notebook">猫咪主题笔记本</option>
+                            <option value="general">通用回复</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>自动回复内容</label>
+                        <textarea id="auto-reply-content" rows="6" placeholder="输入自动回复的内容，支持多轮对话...">您好！感谢您的咨询。
+关于您的问题，我们的商品目前有充足的库存。
+我们提供7天无理由退换货服务。
+如有其他问题，欢迎随时联系我们！</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>对话间隔（秒）</label>
+                        <input type="number" id="auto-reply-interval" value="2" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>预设对话模板</label>
+                        <div class="template-buttons">
+                            <button onclick="loadTemplate('stock')" class="btn btn-secondary">库存咨询</button>
+                            <button onclick="loadTemplate('shipping')" class="btn btn-secondary">发货咨询</button>
+                            <button onclick="loadTemplate('refund')" class="btn btn-secondary">退款咨询</button>
+                            <button onclick="loadTemplate('general')" class="btn btn-secondary">通用回复</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeAutoReplyModal()" class="btn btn-secondary">取消</button>
+                    <button onclick="startAutoReply()" class="btn btn-primary">启动智能客服</button>
+                    <button onclick="stopAutoReply()" class="btn btn-danger">停止智能客服</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="order-detail-modal" class="modal hidden">
+            <div class="modal-content order-detail-modal">
+                <div class="modal-header">
+                    <h3>订单详情</h3>
+                    <button onclick="closeOrderDetailModal()" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="order-detail-container">
+                        <div class="order-detail-section">
+                            <h4>订单信息</h4>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <span class="detail-label">订单编号</span>
+                                    <span class="detail-value" id="detail-order-id">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">订单状态</span>
+                                    <span class="detail-value status-badge" id="detail-order-status">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">下单时间</span>
+                                    <span class="detail-value" id="detail-order-time">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">支付方式</span>
+                                    <span class="detail-value">支付宝</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="order-detail-section">
+                            <h4>收货信息</h4>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <span class="detail-label">收货人</span>
+                                    <span class="detail-value" id="detail-customer">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">联系电话</span>
+                                    <span class="detail-value">138****8888</span>
+                                </div>
+                                <div class="detail-item full-width">
+                                    <span class="detail-label">收货地址</span>
+                                    <span class="detail-value" id="detail-address">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="order-detail-section">
+                            <h4>商品信息</h4>
+                            <div class="order-items-list" id="detail-items">
+                            </div>
+                        </div>
+
+                        <div class="order-detail-section">
+                            <h4>费用明细</h4>
+                            <div class="cost-breakdown">
+                                <div class="cost-row">
+                                    <span>商品金额</span>
+                                    <span id="detail-subtotal">¥0.00</span>
+                                </div>
+                                <div class="cost-row">
+                                    <span>运费</span>
+                                    <span>¥0.00</span>
+                                </div>
+                                <div class="cost-row">
+                                    <span>优惠</span>
+                                    <span>-¥0.00</span>
+                                </div>
+                                <div class="cost-row total">
+                                    <span>实付金额</span>
+                                    <span class="total-amount" id="detail-total">¥0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="order-detail-section">
+                            <h4>订单操作</h4>
+                            <div class="order-actions">
+                                <button onclick="printOrder()" class="btn btn-secondary">打印订单</button>
+                                <button onclick="exportOrder()" class="btn btn-secondary">导出订单</button>
+                                <button id="detail-ship-btn" onclick="shipOrderFromDetail()" class="btn btn-primary hidden">发货</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="notification" class="notification hidden"></div>
+
+    <script>
+        let products = [];
+        let orders = [];
+
+        async function loadProductsFromSupabase() {
+            try {
+                products = await SupabaseManager.getAllProducts();
+            } catch (error) {
+                console.error('加载产品失败:', error);
+                products = JSON.parse(localStorage.getItem('adminProducts')) || [
+                    { id: 1, name: '可爱猫咪玩偶', description: '超柔软的猫咪玩偶，手感极佳，适合抱抱', price: 99.99, stock: 50, image: null },
+                    { id: 2, name: '粉色猫咪马克杯', description: '陶瓷材质，猫咪造型，粉色系设计', price: 49.99, stock: 30, image: null },
+                    { id: 3, name: '猫咪主题笔记本', description: '精美笔记本，内页有猫咪插画', price: 29.99, stock: 100, image: null }
+                ];
+            }
+        }
+
+        async function loadOrdersFromSupabase() {
+            try {
+                orders = await SupabaseManager.getAllOrders();
+            } catch (error) {
+                console.error('加载订单失败:', error);
+                orders = [
+                    { id: '1', customer_name: '张三', items: '可爱猫咪玩偶 x1', total_amount: 99.99, status: 'pending', address: '北京市朝阳区xxx', created_at: '2024-01-15 14:30:00' },
+                    { id: '2', customer_name: '李四', items: '粉色猫咪马克杯 x2', total_amount: 99.98, status: 'paid', address: '上海市浦东新区xxx', created_at: '2024-01-15 15:20:00' },
+                    { id: '3', customer_name: '王五', items: '猫咪主题笔记本 x3', total_amount: 89.97, status: 'shipped', address: '广州市天河区xxx', created_at: '2024-01-15 16:10:00' }
+                ];
+            }
+        }
+
+        function saveProducts() {
+            localStorage.setItem('adminProducts', JSON.stringify(products));
+            console.log('Products saved to localStorage:', products.length);
+        }
+
+        let customerConversations = JSON.parse(localStorage.getItem('customerConversations')) || {
+            1: {
+                name: '客户 #001',
+                avatar: '👩',
+                messages: [
+                    { type: 'customer', text: '您好，请问这个商品有货吗？' },
+                    { type: 'agent', text: '您好！是的，这个商品目前有货，您可以放心购买。' },
+                    { type: 'customer', text: '大概多久能发货？' },
+                    { type: 'agent', text: '通常在24小时内发货，我们会尽快为您安排。' }
+                ]
+            },
+            2: {
+                name: '客户 #002',
+                avatar: '👨',
+                messages: [
+                    { type: 'customer', text: '什么时候能发货？' },
+                    { type: 'agent', text: '您好，您的订单已处理，预计今天下午发货。' }
+                ]
+            },
+            3: {
+                name: '客户 #003',
+                avatar: '👩',
+                messages: [
+                    { type: 'customer', text: '可以退款吗？' }
+                ]
+            }
+        };
+
+        function saveConversations() {
+            localStorage.setItem('customerConversations', JSON.stringify(customerConversations));
+        }
+
+        function renderConversations() {
+            const conversationsContainer = document.querySelector('.cs-conversations');
+            const conversationsHtml = Object.keys(customerConversations).map(id => {
+                const customer = customerConversations[id];
+                const lastMessage = customer.messages[customer.messages.length - 1];
+                const lastMessageText = lastMessage ? lastMessage.text : '暂无消息';
+                const lastMessageTime = lastMessage ? (lastMessage.time || '刚刚') : '刚刚';
+                const unreadCount = customer.messages.filter(m => m.type === 'customer').length;
+                
+                return `
+                    <div class="cs-conversation" onclick="switchCustomer(${parseInt(id)})">
+                        <div class="cs-avatar">${customer.avatar}</div>
+                        <div class="cs-info">
+                            <h4>${customer.name}</h4>
+                            <p>${lastMessageText}</p>
+                            <span class="cs-time">${lastMessageTime}</span>
+                        </div>
+                        ${unreadCount > 0 ? `<span class="cs-unread">${unreadCount}</span>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            conversationsContainer.innerHTML = conversationsHtml;
+            
+            const firstConversation = conversationsContainer.querySelector('.cs-conversation');
+            if (firstConversation) {
+                firstConversation.classList.add('active');
+            }
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`${section}-section`).classList.remove('hidden');
+            event.target.closest('.menu-btn').classList.add('active');
+
+            if (section === 'dashboard') updateDashboard();
+            if (section === 'products') renderProducts();
+            if (section === 'orders') renderOrders();
+            if (section === 'analytics') updateAnalytics();
+            if (section === 'ai-tools') updateAITools();
+            if (section === 'customer-service') {
+                renderConversations();
+                const firstCustomerId = Object.keys(customerConversations)[0];
+                if (firstCustomerId) {
+                    switchCustomer(parseInt(firstCustomerId));
+                }
+            }
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('product-search').value.toLowerCase();
+            const filterType = document.getElementById('product-filter').value;
+            
+            let filteredProducts = products;
+            
+            if (searchTerm) {
+                filteredProducts = filteredProducts.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) || 
+                    p.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (filterType === 'in-stock') {
+                filteredProducts = filteredProducts.filter(p => p.stock > 0);
+            } else if (filterType === 'out-of-stock') {
+                filteredProducts = filteredProducts.filter(p => p.stock === 0);
+            }
+            
+            renderProductsList(filteredProducts);
+        }
+
+        function filterOrders(status) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            let filteredOrders = orders;
+            
+            if (status !== 'all') {
+                filteredOrders = orders.filter(o => o.status === status);
+            }
+            
+            renderOrdersList(filteredOrders);
+        }
+
+        function renderProductsList(productList) {
+            const list = document.getElementById('products-list');
+            list.innerHTML = productList.map(p => `
+                <div class="product-item">
+                    <div class="product-item-info">
+                        ${p.image ? `<img src="${p.image}" alt="${p.name}" class="product-thumbnail">` : ''}
+                        <div class="product-details">
+                            <h4>${p.name}</h4>
+                            <p>${p.description}</p>
+                            <p>价格: ¥${p.price.toFixed(2)} | 库存: ${p.stock}</p>
+                        </div>
+                    </div>
+                    <div class="product-item-actions">
+                        <button onclick="editProduct(${p.id})" class="btn btn-secondary">编辑</button>
+                        <button onclick="deleteProduct(${p.id})" class="btn btn-danger">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderOrdersList(orderList) {
+            const list = document.getElementById('orders-list');
+            list.innerHTML = orderList.map(o => `
+                <div class="order-item">
+                    <div class="order-item-info">
+                        <h4>订单 #${o.id}</h4>
+                        <p>客户: ${o.customer}</p>
+                        <p>商品: ${o.items}</p>
+                        <p>金额: ¥${o.total.toFixed(2)}</p>
+                        <p>地址: ${o.address}</p>
+                        <p>状态: <span class="status-badge status-${o.status}">${getStatusText(o.status)}</span></p>
+                    </div>
+                    <div class="order-item-actions">
+                        ${o.status === 'paid' ? `<button onclick="shipOrder(${o.id})" class="btn btn-primary">发货</button>` : ''}
+                        <button onclick="viewOrderDetails(${o.id})" class="btn btn-secondary">详情</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateAnalytics() {
+        }
+
+        function updateAITools() {
+        }
+
+        function updateDashboard() {
+            document.getElementById('total-products').textContent = products.length;
+            document.getElementById('total-orders').textContent = orders.length;
+            document.getElementById('total-sales').textContent = `¥${orders.reduce((sum, o) => sum + o.total, 0).toFixed(2)}`;
+            document.getElementById('pending-shipping').textContent = orders.filter(o => o.status === 'paid').length;
+        }
+
+        function renderProducts() {
+            renderProductsList(products);
+        }
+
+        function renderOrders() {
+            renderOrdersList(orders);
+        }
+
+        function renderShipping() {
+            const list = document.getElementById('shipping-list');
+            const pendingOrders = orders.filter(o => o.status === 'paid');
+            
+            if (pendingOrders.length === 0) {
+                list.innerHTML = '<p class="empty-message">没有待发货的订单</p>';
+                return;
+            }
+
+            list.innerHTML = pendingOrders.map(o => `
+                <div class="shipping-item">
+                    <div class="shipping-item-info">
+                        <h4>订单 #${o.id}</h4>
+                        <p>客户: ${o.customer}</p>
+                        <p>地址: ${o.address}</p>
+                        <p>金额: ¥${o.total.toFixed(2)}</p>
+                    </div>
+                    <div class="shipping-item-actions">
+                        <button onclick="shipOrder(${o.id})" class="btn btn-primary">发货</button>
+                        <button onclick="aiProcessShipping(${o.id})" class="btn btn-secondary ai-btn">🤖 AI处理</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': '待付款',
+                'paid': '已付款',
+                'shipped': '已发货',
+                'delivered': '已送达'
+            };
+            return statusMap[status] || status;
+        }
+
+        function showAddProductModal() {
+            document.getElementById('add-product-modal').classList.remove('hidden');
+        }
+
+        function closeAddProductModal() {
+            document.getElementById('add-product-modal').classList.add('hidden');
+            document.getElementById('product-form').reset();
+            document.getElementById('image-preview').innerHTML = '';
+        }
+
+        function previewProductImage() {
+            const input = document.getElementById('product-image-input');
+            const preview = document.getElementById('image-preview');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="预览">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addProduct(event) {
+            event.preventDefault();
+            console.log('addProduct called');
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            console.log('Form data:', {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                price: formData.get('price'),
+                stock: formData.get('stock')
+            });
+            
+            const imageInput = document.getElementById('product-image-input');
+            let imageData = null;
+            
+            if (imageInput.files.length > 0) {
+                console.log('Processing image file:', imageInput.files[0].name);
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageData = e.target.result;
+                    console.log('Image loaded, size:', imageData.length);
+                    
+                    const newProduct = {
+                        id: products.length + 1,
+                        name: formData.get('name'),
+                        description: formData.get('description'),
+                        price: parseFloat(formData.get('price')),
+                        stock: parseInt(formData.get('stock')),
+                        image: imageData
+                    };
+
+                    console.log('Adding product:', newProduct);
+                    products.push(newProduct);
+                    saveProducts();
+                    showNotification('商品添加成功！');
+                    closeAddProductModal();
+                    renderProducts();
+                };
+                reader.onerror = function(error) {
+                    console.error('Error reading image:', error);
+                    showNotification('图片读取失败', 'error');
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                console.log('Adding product without image');
+                
+                const newProduct = {
+                    id: products.length + 1,
+                    name: formData.get('name'),
+                    description: formData.get('description'),
+                    price: parseFloat(formData.get('price')),
+                    stock: parseInt(formData.get('stock')),
+                    image: null
+                };
+
+                console.log('Adding product:', newProduct);
+                products.push(newProduct);
+                saveProducts();
+                showNotification('商品添加成功！');
+                closeAddProductModal();
+                renderProducts();
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm('确定要删除这个商品吗？')) {
+                products = products.filter(p => p.id !== id);
+                saveProducts();
+                showNotification('商品删除成功！');
+                renderProducts();
+            }
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) {
+                showNotification('商品不存在', 'error');
+                return;
+            }
+            
+            console.log('Editing product:', product);
+            
+            document.getElementById('edit-product-id').value = product.id;
+            document.getElementById('edit-product-name').value = product.name;
+            document.getElementById('edit-product-description').value = product.description;
+            document.getElementById('edit-product-price').value = product.price;
+            document.getElementById('edit-product-stock').value = product.stock;
+            
+            const preview = document.getElementById('edit-image-preview');
+            if (product.image) {
+                preview.innerHTML = `<img src="${product.image}" alt="当前图片" style="max-width: 200px; max-height: 200px;">`;
+            } else {
+                preview.innerHTML = '';
+            }
+            
+            document.getElementById('edit-product-modal').classList.remove('hidden');
+        }
+
+        function closeEditProductModal() {
+            document.getElementById('edit-product-modal').classList.add('hidden');
+            document.getElementById('edit-product-form').reset();
+            document.getElementById('edit-image-preview').innerHTML = '';
+        }
+
+        function previewEditProductImage() {
+            const input = document.getElementById('edit-product-image-input');
+            const preview = document.getElementById('edit-image-preview');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="预览" style="max-width: 200px; max-height: 200px;">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveEditProduct(event) {
+            event.preventDefault();
+            console.log('saveEditProduct called');
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            const productId = parseInt(formData.get('edit-product-id'));
+            const product = products.find(p => p.id === productId);
+            
+            if (!product) {
+                showNotification('商品不存在', 'error');
+                return;
+            }
+            
+            console.log('Updating product:', product);
+            
+            const imageInput = document.getElementById('edit-product-image-input');
+            
+            if (imageInput.files.length > 0) {
+                console.log('Processing new image...');
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    product.name = formData.get('name');
+                    product.description = formData.get('description');
+                    product.price = parseFloat(formData.get('price'));
+                    product.stock = parseInt(formData.get('stock'));
+                    product.image = e.target.result;
+                    
+                    console.log('Product updated:', product);
+                    saveProducts();
+                    showNotification('商品更新成功！');
+                    closeEditProductModal();
+                    renderProducts();
+                };
+                reader.onerror = function(error) {
+                    console.error('Error reading image:', error);
+                    showNotification('图片读取失败', 'error');
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                console.log('Updating without new image');
+                
+                product.name = formData.get('name');
+                product.description = formData.get('description');
+                product.price = parseFloat(formData.get('price'));
+                product.stock = parseInt(formData.get('stock'));
+                
+                console.log('Product updated:', product);
+                saveProducts();
+                showNotification('商品更新成功！');
+                closeEditProductModal();
+                renderProducts();
+            }
+        }
+
+        function shipOrder(id) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.status = 'shipped';
+                showNotification('订单发货成功！');
+                renderOrders();
+            }
+        }
+
+        function viewOrderDetails(id) {
+            const order = orders.find(o => o.id === id);
+            if (!order) {
+                showNotification('订单不存在', 'error');
+                return;
+            }
+
+            document.getElementById('detail-order-id').textContent = `#${order.id}`;
+            document.getElementById('detail-order-status').textContent = getStatusText(order.status);
+            document.getElementById('detail-order-status').className = `detail-value status-badge status-${order.status}`;
+            document.getElementById('detail-order-time').textContent = order.time || '2024-01-15 14:30:00';
+            document.getElementById('detail-customer').textContent = order.customer;
+            document.getElementById('detail-address').textContent = order.address;
+            document.getElementById('detail-subtotal').textContent = `¥${order.total.toFixed(2)}`;
+            document.getElementById('detail-total').textContent = `¥${order.total.toFixed(2)}`;
+
+            const itemsList = document.getElementById('detail-items');
+            const itemDetails = order.items.split(', ');
+            itemsList.innerHTML = itemDetails.map(item => `
+                <div class="order-item-detail">
+                    <div class="item-image">
+                        <div class="item-placeholder">📦</div>
+                    </div>
+                    <div class="item-info">
+                        <h5>${item}</h5>
+                        <p class="item-price">¥${(order.total / itemDetails.length).toFixed(2)}</p>
+                    </div>
+                    <div class="item-quantity">x${item.match(/x(\d+)/)?.[1] || 1}</div>
+                </div>
+            `).join('');
+
+            const shipBtn = document.getElementById('detail-ship-btn');
+            if (order.status === 'paid') {
+                shipBtn.classList.remove('hidden');
+                shipBtn.dataset.orderId = order.id;
+            } else {
+                shipBtn.classList.add('hidden');
+            }
+
+            document.getElementById('order-detail-modal').classList.remove('hidden');
+        }
+
+        function closeOrderDetailModal() {
+            document.getElementById('order-detail-modal').classList.add('hidden');
+        }
+
+        function shipOrderFromDetail() {
+            const shipBtn = document.getElementById('detail-ship-btn');
+            const orderId = parseInt(shipBtn.dataset.orderId);
+            shipOrder(orderId);
+            closeOrderDetailModal();
+        }
+
+        function printOrder() {
+            showNotification('正在打印订单...');
+            setTimeout(() => {
+                showNotification('订单打印完成');
+            }, 1000);
+        }
+
+        function exportOrder() {
+            showNotification('正在导出订单...');
+            setTimeout(() => {
+                showNotification('订单导出完成');
+            }, 1000);
+        }
+
+        function handleAdminCsKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendAdminCsMessage();
+            }
+        }
+
+        function sendAdminCsMessage() {
+            const input = document.getElementById('adminCsInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesContainer = document.querySelector('.cs-messages');
+            
+            const adminMessage = document.createElement('div');
+            adminMessage.className = 'cs-message cs-message-admin';
+            adminMessage.innerHTML = `
+                <div class="cs-content">
+                    <p>${message}</p>
+                    <span class="cs-time">刚刚</span>
+                </div>
+                <div class="cs-avatar">🐱</div>
+            `;
+            messagesContainer.appendChild(adminMessage);
+            
+            input.value = '';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            showNotification('回复已发送', 'success');
+        }
+
+        function toggleCustomerService() {
+            const panel = document.getElementById('csPanel');
+            panel.classList.toggle('show');
+        }
+
+        function handleCsKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendCsMessage();
+            }
+        }
+
+        function sendCsMessage() {
+            const input = document.getElementById('csInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesContainer = document.getElementById('csMessages');
+            
+            const userMessage = document.createElement('div');
+            userMessage.className = 'cs-message cs-message-user';
+            userMessage.innerHTML = `
+                <span class="cs-message-content">${message}</span>
+                <span class="cs-message-time">刚刚</span>
+            `;
+            messagesContainer.appendChild(userMessage);
+            
+            input.value = '';
+            
+            setTimeout(() => {
+                const responses = [
+                    '感谢您的咨询，我们会尽快为您处理！',
+                    '您的问题已收到，客服稍后会联系您。',
+                    '好的，我明白了您的需求。',
+                    '请稍等，正在为您查询相关信息...',
+                    '感谢您的耐心等待，我们正在处理中。'
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                
+                const systemMessage = document.createElement('div');
+                systemMessage.className = 'cs-message cs-message-system';
+                systemMessage.innerHTML = `
+                    <span class="cs-message-content">${randomResponse}</span>
+                    <span class="cs-message-time">刚刚</span>
+                `;
+                messagesContainer.appendChild(systemMessage);
+                
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 1000);
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function logout() {
+            console.log('Logout function called');
+            if (confirm('确定要退出登录吗？')) {
+                console.log('User confirmed logout');
+                try {
+                    SessionManager.logout();
+                    console.log('SessionManager.logout() completed');
+                } catch (e) {
+                    console.error('Error during logout:', e);
+                }
+                console.log('Redirecting to index.html');
+                window.location.href = 'index.html';
+            } else {
+                console.log('User cancelled logout');
+            }
+        }
+
+        function processImageWithAI() {
+            const input = document.getElementById('product-image-input');
+            if (input.files.length === 0) {
+                showNotification('请先选择图片', 'error');
+                return;
+            }
+            
+            showNotification('AI正在处理图片...');
+            
+            const file = input.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    const size = 800;
+                    canvas.width = size;
+                    canvas.height = size;
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, size, size);
+                    
+                    let drawWidth = img.width;
+                    let drawHeight = img.height;
+                    
+                    if (drawWidth > drawHeight) {
+                        drawWidth = size * 0.8;
+                        drawHeight = (img.height / img.width) * drawWidth;
+                    } else {
+                        drawHeight = size * 0.8;
+                        drawWidth = (img.width / img.height) * drawHeight;
+                    }
+                    
+                    const x = (size - drawWidth) / 2;
+                    const y = (size - drawHeight) / 2;
+                    
+                    ctx.drawImage(img, x, y, drawWidth, drawHeight);
+                    
+                    const processedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                    
+                    const preview = document.getElementById('image-preview');
+                    preview.innerHTML = `<img src="${processedDataUrl}" alt="AI处理后的图片">`;
+                    
+                    showNotification('AI图片处理完成！已自动调整尺寸并生成白色背景');
+                };
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function downloadAIImage() {
+            const preview = document.getElementById('ai-image-preview');
+            const img = preview.querySelector('img');
+            
+            if (!img) {
+                showNotification('请先处理图片', 'error');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = 'processed-image.jpg';
+            link.href = img.src;
+            link.click();
+            
+            showNotification('图片下载成功！');
+        }
+
+        function showAIImageModal() {
+            document.getElementById('ai-image-modal').classList.remove('hidden');
+        }
+
+        function closeAIImageModal() {
+            document.getElementById('ai-image-modal').classList.add('hidden');
+            document.getElementById('ai-image-preview').innerHTML = '';
+        }
+
+        function updateSizeInfo() {
+            const select = document.getElementById('image-size-select');
+            const customGroup = document.getElementById('custom-size-group');
+            
+            if (select.value === 'custom') {
+                customGroup.classList.remove('hidden');
+            } else {
+                customGroup.classList.add('hidden');
+            }
+        }
+
+        function previewAIImage() {
+            const input = document.getElementById('ai-image-input');
+            const preview = document.getElementById('ai-image-preview');
+            const productPreview = document.getElementById('product-image-preview');
+            const carouselPreview = document.getElementById('carousel-image-preview');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="预览">`;
+                    productPreview.innerHTML = `<img src="${e.target.result}" alt="商品预览">`;
+                    carouselPreview.innerHTML = `<img src="${e.target.result}" alt="轮播预览">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function processAIImage() {
+            const input = document.getElementById('ai-image-input');
+            if (input.files.length === 0) {
+                showNotification('请先选择图片', 'error');
+                return;
+            }
+            
+            showNotification('AI正在处理图片...');
+            
+            const file = input.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    const sizeSelect = document.getElementById('image-size-select');
+                    let width, height;
+                    
+                    if (sizeSelect.value === 'custom') {
+                        width = parseInt(document.getElementById('custom-width').value);
+                        height = parseInt(document.getElementById('custom-height').value);
+                    } else {
+                        [width, height] = sizeSelect.value.split('x').map(Number);
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const autoWhiteBg = document.getElementById('auto-white-bg').checked;
+                    if (autoWhiteBg) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, width, height);
+                    }
+                    
+                    let drawWidth = img.width;
+                    let drawHeight = img.height;
+                    
+                    if (autoWhiteBg) {
+                        if (drawWidth > drawHeight) {
+                            drawWidth = width * 0.8;
+                            drawHeight = (img.height / img.width) * drawWidth;
+                        } else {
+                            drawHeight = height * 0.8;
+                            drawWidth = (img.width / img.height) * drawHeight;
+                        }
+                        
+                        const x = (width - drawWidth) / 2;
+                        const y = (height - drawHeight) / 2;
+                        
+                        ctx.drawImage(img, x, y, drawWidth, drawHeight);
+                    } else {
+                        ctx.drawImage(img, 0, 0, width, height);
+                    }
+                    
+                    const optimizeQuality = document.getElementById('optimize-quality').checked;
+                    const quality = optimizeQuality ? 0.95 : 0.9;
+                    
+                    const processedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                    
+                    const preview = document.getElementById('ai-image-preview');
+                    preview.innerHTML = `<img src="${processedDataUrl}" alt="AI处理后的图片">`;
+                    
+                    const productPreview = document.getElementById('product-image-preview');
+                    productPreview.innerHTML = `<img src="${processedDataUrl}" alt="商品预览">`;
+                    
+                    const carouselPreview = document.getElementById('carousel-image-preview');
+                    carouselPreview.innerHTML = `<img src="${processedDataUrl}" alt="轮播预览">`;
+                    
+                    showNotification(`图片处理完成！尺寸：${width}x${height}px`);
+                };
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function analyzeProducts() {
+            showNotification('AI正在分析商品数据...');
+            
+            setTimeout(() => {
+                showNotification('分析完成！建议增加库存不足的商品，优化价格策略');
+            }, 2000);
+        }
+
+        function autoProcessShipping() {
+            const pendingOrders = orders.filter(o => o.status === 'paid');
+            if (pendingOrders.length === 0) {
+                showNotification('没有待处理的订单', 'error');
+                return;
+            }
+            
+            showNotification(`AI正在处理 ${pendingOrders.length} 个订单...`);
+            
+            setTimeout(() => {
+                pendingOrders.forEach(o => o.status = 'shipped');
+                showNotification('AI智能发货完成！所有订单已处理');
+                renderOrders();
+            }, 2000);
+        }
+
+        function aiProcessShipping(id) {
+            showNotification('AI正在智能处理订单...');
+            
+            setTimeout(() => {
+                const order = orders.find(o => o.id === id);
+                if (order) {
+                    order.status = 'shipped';
+                    showNotification('AI智能发货完成！');
+                    renderOrders();
+                }
+            }, 1500);
+        }
+
+        function startCustomerService() {
+            showNotification('AI客服已启动，可以开始与客户对话');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : type === 'info' ? 'info' : ''}`;
+            notification.classList.remove('hidden');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        function switchCustomer(customerId) {
+            const conversations = document.querySelectorAll('.cs-conversation');
+            conversations.forEach(conv => conv.classList.remove('active'));
+            
+            const selectedConversation = conversations[customerId - 1];
+            if (selectedConversation) {
+                selectedConversation.classList.add('active');
+            }
+
+            const chatHeader = document.querySelector('.cs-chat-header h3');
+            const messagesContainer = document.querySelector('.cs-messages');
+            
+            const customer = customerConversations[customerId];
+            if (customer) {
+                chatHeader.textContent = customer.name;
+                messagesContainer.innerHTML = customer.messages.map(msg => `
+                    <div class="cs-message cs-message-${msg.type}">
+                        ${msg.type === 'customer' ? `<div class="cs-avatar">${customer.avatar}</div>` : ''}
+                        <div class="cs-content">
+                            <p>${msg.text}</p>
+                        </div>
+                    </div>
+                `).join('');
+                
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+
+        let autoReplyInterval = null;
+
+        function showAutoReplyModal() {
+            document.getElementById('auto-reply-modal').classList.remove('hidden');
+        }
+
+        function closeAutoReplyModal() {
+            document.getElementById('auto-reply-modal').classList.add('hidden');
+        }
+
+        function loadTemplate(type) {
+            const productSelect = document.getElementById('product-select');
+            const productValue = productSelect.value;
+            
+            const productReplies = {
+                'doll': {
+                    'stock': `您好！关于可爱猫咪玩偶的库存问题。
+目前这款玩偶库存充足，您可以放心下单。
+我们会尽快为您安排发货，通常24小时内发出。`,
+                    'shipping': `您好！关于可爱猫咪玩偶的发货问题。
+我们会使用顺丰快递发货，预计1-3天到达。
+发货后我们会提供快递单号，您可以随时查询物流信息。`,
+                    'refund': `您好！关于可爱猫咪玩偶的退款问题。
+我们提供7天无理由退换货服务。
+只要玩偶保持原样，不影响二次销售，都可以申请退款。`,
+                    'quality': `您好！关于可爱猫咪玩偶的质量问题。
+这款玩偶采用超柔软材质，手感极佳。
+所有商品均为正品，质量有保障，请放心购买。`
+                },
+                'mug': {
+                    'stock': `您好！关于粉色猫咪马克杯的库存问题。
+目前这款马克杯库存充足，您可以放心下单。
+我们会尽快为您安排发货，通常24小时内发出。`,
+                    'shipping': `您好！关于粉色猫咪马克杯的发货问题。
+我们会使用顺丰快递发货，预计1-3天到达。
+发货后我们会提供快递单号，您可以随时查询物流信息。`,
+                    'refund': `您好！关于粉色猫咪马克杯的退款问题。
+我们提供7天无理由退换货服务。
+只要马克杯保持原样，不影响二次销售，都可以申请退款。`,
+                    'quality': `您好！关于粉色猫咪马克杯的质量问题。
+这款马克杯采用陶瓷材质，猫咪造型设计。
+所有商品均为正品，质量有保障，请放心购买。`
+                },
+                'notebook': {
+                    'stock': `您好！关于猫咪主题笔记本的库存问题。
+目前这款笔记本库存充足，您可以放心下单。
+我们会尽快为您安排发货，通常24小时内发出。`,
+                    'shipping': `您好！关于猫咪主题笔记本的发货问题。
+我们会使用顺丰快递发货，预计1-3天到达。
+发货后我们会提供快递单号，您可以随时查询物流信息。`,
+                    'refund': `您好！关于猫咪主题笔记本的退款问题。
+我们提供7天无理由退换货服务。
+只要笔记本保持原样，不影响二次销售，都可以申请退款。`,
+                    'quality': `您好！关于猫咪主题笔记本的质量问题。
+这款笔记本精美设计，内页有猫咪插画。
+所有商品均为正品，质量有保障，请放心购买。`
+                },
+                'general': {
+                    'stock': `您好！关于库存问题。
+我们的商品目前有充足的库存。
+您可以直接下单购买，我们会尽快为您安排发货。`,
+                    'shipping': `您好！关于发货问题。
+我们通常在24小时内发货。
+顺丰快递，预计1-3天到达。`,
+                    'refund': `您好！关于退款问题。
+我们提供7天无理由退换货服务。
+只要商品保持原样，都可以申请退款。`,
+                    'quality': `您好！关于质量问题。
+所有商品均为正品，质量有保障。
+请放心购买，如有问题我们会及时处理。`
+                }
+            };
+            
+            const templates = productReplies[productValue] || productReplies['general'];
+            document.getElementById('auto-reply-content').value = templates[type] || '';
+        }
+
+        function loadProductReply() {
+            const productSelect = document.getElementById('product-select');
+            const productValue = productSelect.value;
+            
+            const productReplies = {
+                'doll': {
+                    content: `您好！感谢您咨询我们的可爱猫咪玩偶。
+这款玩偶采用超柔软材质，手感极佳，非常适合抱抱。
+目前库存充足，您可以放心购买。
+我们支持7天无理由退换货服务。
+如有其他问题，欢迎随时联系我们！`,
+                    templates: {
+                        'stock': `您好！关于可爱猫咪玩偶的库存问题。
+目前这款玩偶库存充足，您可以放心下单。
+我们会尽快为您安排发货，通常24小时内发出。`,
+                        'shipping': `您好！关于可爱猫咪玩偶的发货问题。
+我们会使用顺丰快递发货，预计1-3天到达。
+发货后我们会提供快递单号，您可以随时查询物流信息。`,
+                        'refund': `您好！关于可爱猫咪玩偶的退款问题。
+我们提供7天无理由退换货服务。
+只要玩偶保持原样，不影响二次销售，都可以申请退款。`,
+                        'quality': `您好！关于可爱猫咪玩偶的质量问题。
+这款玩偶采用超柔软材质，手感极佳。
+所有商品均为正品，质量有保障，请放心购买。`
+                    }
+                },
+                'mug': {
+                    content: `您好！感谢您咨询我们的粉色猫咪马克杯。
+这款马克杯采用陶瓷材质，猫咪造型设计，粉色系外观。
+目前库存充足，您可以放心购买。
+我们支持7天无理由退换货服务。
+如有其他问题，欢迎随时联系我们！`,
+                    templates: {
+                        'stock': `您好！关于粉色猫咪马克杯的库存问题。
+目前这款马克杯库存充足，您可以放心下单。
+我们会尽快为您安排发货，通常24小时内发出。`,
+                        'shipping': `您好！关于粉色猫咪马克杯的发货问题。
+我们会使用顺丰快递发货，预计1-3天到达。
+发货后我们会提供快递单号，您可以随时查询物流信息。`,
+                        'refund': `您好！关于粉色猫咪马克杯的退款问题。
+我们提供7天无理由退换货服务。
+只要马克杯保持原样，不影响二次销售，都可以申请退款。`,
+                        'quality': `您好！关于粉色猫咪马克杯的质量问题。
+这款马克杯采用陶瓷材质，猫咪造型设计。
+所有商品均为正品，质量有保障，请放心购买。`
+                    }
+                },
+                'notebook': {
+                    content: `您好！感谢您咨询我们的猫咪主题笔记本。
+这款笔记本精美设计，内页有猫咪插画。
+目前库存充足，您可以放心购买。
+我们支持7天无理由退换货服务。
+如有其他问题，欢迎随时联系我们！`,
+                    templates: {
+                        'stock': `您好！关于猫咪主题笔记本的库存问题。
+目前这款笔记本库存充足，您可以放心下单。
+我们会尽快为您安排发货，通常24小时内发出。`,
+                        'shipping': `您好！关于猫咪主题笔记本的发货问题。
+我们会使用顺丰快递发货，预计1-3天到达。
+发货后我们会提供快递单号，您可以随时查询物流信息。`,
+                        'refund': `您好！关于猫咪主题笔记本的退款问题。
+我们提供7天无理由退换货服务。
+只要笔记本保持原样，不影响二次销售，都可以申请退款。`,
+                        'quality': `您好！关于猫咪主题笔记本的质量问题。
+这款笔记本精美设计，内页有猫咪插画。
+所有商品均为正品，质量有保障，请放心购买。`
+                    }
+                },
+                'general': {
+                    content: `您好！感谢您的咨询。
+我们的客服团队会尽快为您解答问题。
+如有任何疑问，欢迎随时联系我们。
+感谢您的理解与支持！`,
+                    templates: {
+                        'stock': `您好！关于库存问题。
+我们的商品目前有充足的库存。
+您可以直接下单购买，我们会尽快为您安排发货。`,
+                        'shipping': `您好！关于发货问题。
+我们通常在24小时内发货。
+顺丰快递，预计1-3天到达。`,
+                        'refund': `您好！关于退款问题。
+我们提供7天无理由退换货服务。
+只要商品保持原样，都可以申请退款。`,
+                        'quality': `您好！关于质量问题。
+所有商品均为正品，质量有保障。
+请放心购买，如有问题我们会及时处理。`
+                    }
+                }
+            };
+            
+            const product = productReplies[productValue];
+            if (product) {
+                document.getElementById('auto-reply-content').value = product.content;
+            }
+        }
+
+        function startAutoReply() {
+            const activeConversation = document.querySelector('.cs-conversation.active');
+            if (!activeConversation) {
+                showNotification('请先选择一个客户', 'error');
+                return;
+            }
+
+            const customerId = Array.from(document.querySelectorAll('.cs-conversation')).indexOf(activeConversation) + 1;
+            const content = document.getElementById('auto-reply-content').value;
+            const interval = parseInt(document.getElementById('auto-reply-interval').value) * 1000;
+
+            if (!content.trim()) {
+                showNotification('请输入自动回复内容', 'error');
+                return;
+            }
+
+            if (!customerConversations[customerId]) {
+                showNotification('客户不存在', 'error');
+                return;
+            }
+
+            closeAutoReplyModal();
+            showNotification('智能客服已启动');
+
+            const lines = content.split('\n').filter(line => line.trim());
+            let currentIndex = 0;
+
+            function sendNextMessage() {
+                if (currentIndex < lines.length) {
+                    sendAdminCsMessage(lines[currentIndex]);
+                    currentIndex++;
+                }
+            }
+
+            sendNextMessage();
+            autoReplyInterval = setInterval(() => {
+                if (currentIndex < lines.length) {
+                    sendNextMessage();
+                } else {
+                    stopAutoReply();
+                }
+            }, interval);
+        }
+
+        function stopAutoReply() {
+            if (autoReplyInterval) {
+                clearInterval(autoReplyInterval);
+                autoReplyInterval = null;
+                showNotification('自动客服已停止');
+            }
+        }
+
+        function sendAdminCsMessage(customText = null) {
+            const input = document.getElementById('adminCsInput');
+            const text = customText || input.value.trim();
+            
+            if (!text) return;
+
+            const messagesContainer = document.querySelector('.cs-messages');
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            const messageHtml = `
+                <div class="cs-message cs-message-admin">
+                    <div class="cs-content">
+                        <p>${text}</p>
+                        <span class="cs-time">${timeStr}</span>
+                    </div>
+                    <div class="cs-avatar">🐱</div>
+                </div>
+            `;
+
+            messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            const activeConversation = document.querySelector('.cs-conversation.active');
+            if (activeConversation) {
+                const customerId = Array.from(document.querySelectorAll('.cs-conversation')).indexOf(activeConversation) + 1;
+                if (customerConversations[customerId]) {
+                    customerConversations[customerId].messages.push({
+                        type: 'agent',
+                        text: text,
+                        time: timeStr
+                    });
+                    saveConversations();
+                }
+            }
+
+            if (!customText) {
+                input.value = '';
+            }
+        }
+
+        function handleAdminCsKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendAdminCsMessage();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            SessionManager.init();
+            
+            if (!SupabaseManager.isLoggedIn() || !SupabaseManager.isAdmin()) {
+                console.log('User not logged in or not admin, redirecting to login page...');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            SecurityUtils.addSecurityHeaders();
+            SecurityUtils.preventRightClick();
+            SecurityUtils.showSecurityBadge();
+            
+            await loadProductsFromSupabase();
+            await loadOrdersFromSupabase();
+            
+            console.log('Admin page loaded, products from Supabase:', products.length);
+            updateDashboard();
+            
+            window.addEventListener('beforeunload', () => {
+                console.log('Admin page closing, saving products...');
+                saveProducts();
+            });
+        });
+    </script>
+
+    <div class="customer-service-widget">
+        <button class="cs-toggle-btn" onclick="toggleCustomerService()">
+            <span class="cs-icon">💬</span>
+        </button>
+        <div class="cs-panel" id="csPanel">
+            <div class="cs-header">
+                <h3>客服对话</h3>
+                <button onclick="toggleCustomerService()" class="cs-close">&times;</button>
+            </div>
+            <div class="cs-messages" id="csMessages">
+                <div class="cs-message cs-message-system">
+                    <span class="cs-message-content">您好！我是智能客服，有什么可以帮助您的吗？</span>
+                    <span class="cs-message-time">刚刚</span>
+                </div>
+            </div>
+            <div class="cs-input-area">
+                <input type="text" id="csInput" placeholder="输入您的问题..." onkeypress="handleCsKeyPress(event)">
+                <button onclick="sendCsMessage()" class="cs-send-btn">发送</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

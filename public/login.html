@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员登录 - DozingCat</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1 data-lang="login.adminTitle">🔐 管理员登录</h1>
+                <p data-lang="login.adminDesc">DozingCat 电商平台后台管理系统</p>
+            </div>
+            <div class="lang-toggle">
+                <button onclick="toggleLanguage()" class="lang-btn" id="login-lang-btn">EN</button>
+            </div>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label data-lang="login.username">用户名</label>
+                    <input type="text" name="username" required placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label data-lang="login.password">密码</label>
+                    <input type="password" name="password" required placeholder="请输入密码">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" data-lang="login.submit">登录</button>
+            </form>
+            <div class="login-footer">
+                <p data-lang="login.forgot">忘记密码？<a href="#">联系管理员</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification hidden"></div>
+
+    <script src="js/language.js"></script>
+    <script src="js/session-manager.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof SessionManager !== 'undefined') {
+                SessionManager.init();
+            }
+        });
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            const username = formData.get('username');
+            const password = formData.get('password');
+            
+            if (username === 'admin123' && password === '123123') {
+                const userData = {
+                    username: username,
+                    role: 'admin',
+                    loginTime: new Date().toISOString()
+                };
+                
+                try {
+                    SessionManager.login(userData);
+                    showNotification('登录成功！正在跳转...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1000);
+                } catch (error) {
+                    console.error('Error during login:', error);
+                    showNotification('登录失败：' + error.message, 'error');
+                }
+            } else {
+                showNotification('用户名或密码错误！', 'error');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.classList.remove('hidden');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

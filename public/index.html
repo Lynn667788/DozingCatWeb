@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DozingCat - 发现优质商品</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (async function() {
+            console.log('立即加载 Supabase 产品...');
+            try {
+                const sb = supabase.createClient(
+                    'https://dtkbnkqtgelwvtgmpaad.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0a2Jua3F0Z2Vsd3Z0Z21wYWFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NDU4MzEsImV4cCI6MjA5MTMyMTgzMX0.RiitiByYneE0Fe9z6gNdwfDOrtYCbLXmhLA6w0xJYYM'
+                );
+                const { data, error } = await sb.from('products').select('*').limit(10);
+                if (!error && data && data.length > 0) {
+                    window.productsFromSupabase = data;
+                    console.log('✅ 立即加载成功:', data.length, '个产品');
+                }
+            } catch (e) {
+                console.log('立即加载失败:', e);
+            }
+        })();
+    </script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-manager.js"></script>
+    <script src="js/security.js"></script>
+    <script src="js/session-manager.js"></script>
+    <script src="js/user-data-manager.js"></script>
+    <script src="js/language.js"></script>
+</head>
+<body>
+    <svg style="display: none;">
+        <use href="icons.svg#icon-cat"></use>
+        <use href="icons.svg#icon-home"></use>
+        <use href="icons.svg#icon-logout"></use>
+        <use href="icons.svg#icon-cart"></use>
+        <use href="icons.svg#icon-profile"></use>
+        <use href="icons.svg#icon-flower"></use>
+        <use href="icons.svg#icon-location"></use>
+        <use href="icons.svg#icon-card"></use>
+        <use href="icons.svg#icon-delivery"></use>
+        <use href="icons.svg#icon-star"></use>
+        <use href="icons.svg#icon-chat"></use>
+        <use href="icons.svg#icon-phone"></use>
+        <use href="icons.svg#icon-email"></use>
+        <use href="icons.svg#icon-gift"></use>
+        <use href="icons.svg#icon-package"></use>
+        <use href="icons.svg#icon-heart"></use>
+        <use href="icons.svg#icon-crown"></use>
+        <use href="icons.svg#icon-diamond"></use>
+        <use href="icons.svg#icon-butterfly"></use>
+        <use href="icons.svg#icon-moon"></use>
+        <use href="icons.svg#icon-sun"></use>
+        <use href="icons.svg#icon-rainbow"></use>
+        <use href="icons.svg#icon-shield"></use>
+        <use href="icons.svg#icon-bell"></use>
+        <use href="icons.svg#icon-search"></use>
+        <use href="icons.svg#icon-sparkle"></use>
+        <use href="icons.svg#icon-celebration"></use>
+        <use href="icons.svg#icon-close"></use>
+        <use href="icons.svg#icon-check"></use>
+        <use href="icons.svg#icon-menu"></use>
+        <use href="icons.svg#icon-arrow-left"></use>
+        <use href="icons.svg#icon-arrow-right"></use>
+        <use href="icons.svg#icon-settings"></use>
+        <use href="icons.svg#icon-edit"></use>
+        <use href="icons.svg#icon-delete"></use>
+        <use href="icons.svg#icon-plus"></use>
+        <use href="icons.svg#icon-minus"></use>
+        <use href="icons.svg#icon-upload"></use>
+    </svg>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>DozingCat</h1>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="active" data-lang="nav.home">首页</a>
+                <a href="#collections" data-lang="nav.collections">系列</a>
+                <a href="#about" data-lang="nav.about">关于</a>
+                <div class="nav-right-section">
+                    <div class="login-lang-group" id="login-lang-group">
+                        <button class="member-login-btn" id="member-login-btn" onclick="showLoginModal()" data-lang="nav.login">登录</button>
+                        <span class="login-lang-separator">/</span>
+                        <button onclick="toggleLanguage()" class="lang-btn" id="lang-btn">EN</button>
+                    </div>
+                    <div class="nav-member-section hidden" id="nav-member-section">
+                        <button class="cart-btn" id="cart-btn" onclick="window.location.href='cart.html'">
+                            <svg class="cart-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            <span class="cart-count" id="cart-count">0</span>
+                        </button>
+                        <button class="member-avatar-btn" id="member-avatar-btn" onclick="goToMemberDashboard()">
+                            <span class="member-avatar" id="member-avatar-display">🐱</span>
+                        </button>
+                        <button onclick="toggleLanguage()" class="lang-btn" id="member-lang-btn">EN</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title" data-lang="hero.title">发现你的独特风格</h1>
+                        <p class="hero-subtitle" data-lang="hero.subtitle">探索我们的奢华系列，找到属于你的精致之选</p>
+                        <div class="hero-actions">
+                            <button onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})" class="btn btn-primary" data-lang="hero.buyNow">
+                                立即购买
+                            </button>
+                        </div>
+                    </div>
+                    <div class="hero-image">
+                        <div class="cat-carousel">
+                            <div class="carousel-track">
+                                <div class="carousel-slide">
+                                    <div class="cat-image cat-1"></div>
+                                </div>
+                                <div class="carousel-slide">
+                                    <div class="cat-image cat-2"></div>
+                                </div>
+                                <div class="carousel-slide">
+                                    <div class="cat-image cat-3"></div>
+                                </div>
+                                <div class="carousel-slide">
+                                    <div class="cat-image cat-4"></div>
+                                </div>
+                                <div class="carousel-slide">
+                                    <div class="cat-image cat-5"></div>
+                                </div>
+                            </div>
+                            <div class="carousel-dots">
+                                <button class="carousel-dot active" data-slide="0"></button>
+                                <button class="carousel-dot" data-slide="1"></button>
+                                <button class="carousel-dot" data-slide="2"></button>
+                                <button class="carousel-dot" data-slide="3"></button>
+                                <button class="carousel-dot" data-slide="4"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="collections-section" id="collections">
+            <div class="container">
+                <div class="section-header">
+                    <h2 data-lang="collections.title">精选系列</h2>
+                    <a href="#" class="view-all" data-lang="collections.viewAll">查看全部</a>
+                </div>
+                <div class="collections-grid">
+                    <div class="collection-card">
+                        <div class="collection-image"></div>
+                        <div class="collection-info">
+                            <h3 data-lang="collections.pets.title">萌宠系列</h3>
+                            <p data-lang="collections.pets.desc">可爱猫咪主题商品，温暖你的每一天</p>
+                            <button class="btn btn-text" data-lang="collections.explore">探索系列 →</button>
+                        </div>
+                    </div>
+                    <div class="collection-card">
+                        <div class="collection-image"></div>
+                        <div class="collection-info">
+                            <h3 data-lang="collections.life.title">生活系列</h3>
+                            <p data-lang="collections.life.desc">实用家居用品，提升生活品质</p>
+                            <button class="btn btn-text" data-lang="collections.explore">探索系列 →</button>
+                        </div>
+                    </div>
+                    <div class="collection-card">
+                        <div class="collection-image"></div>
+                        <div class="collection-info">
+                            <h3 data-lang="collections.limited.title">限量系列</h3>
+                            <p data-lang="collections.limited.desc">独家设计，限量发售，独一无二</p>
+                            <button class="btn btn-text" data-lang="collections.explore">探索系列 →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="products-section" id="products">
+            <div class="container">
+                <div class="section-header">
+                    <h2 data-lang="products.title">热门商品</h2>
+                    <a href="#" class="view-all" data-lang="collections.viewAll">查看全部</a>
+                </div>
+                <div id="products-grid" class="products-grid"></div>
+            </div>
+        </section>
+
+        <section class="about-section" id="about">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2 data-lang="about.title">关于 DozingCat</h2>
+                        <p data-lang="about.p1">DozingCat 是一个专注于提供高品质猫咪主题商品的电商平台。我们相信，每一件商品都应该承载着爱与温暖。</p>
+                        <p data-lang="about.p2">我们的团队由热爱猫咪的设计师和工程师组成，致力于为您打造最优质的购物体验。从产品选材到包装设计，每一个细节都经过精心打磨。</p>
+                        <p data-lang="about.p3">加入我们，一起探索猫咪世界的无限可能！</p>
+                        <button class="btn btn-primary" data-lang="about.learnMore">了解更多</button>
+                    </div>
+                    <div class="about-image"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="newsletter-section">
+            <div class="container">
+                <div class="newsletter-content">
+                    <h2 data-lang="newsletter.title">订阅我们的通讯</h2>
+                    <p data-lang="newsletter.desc">第一时间获取新品信息和独家优惠</p>
+                    <form class="newsletter-form">
+                        <input type="email" data-lang-placeholder="newsletter.placeholder" placeholder="输入您的邮箱地址" required>
+                        <button type="submit" class="btn btn-primary" data-lang="newsletter.subscribe">立即订阅</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DozingCat</h3>
+                    <p data-lang="footer.slogan">发现你的独特风格，探索优质商品</p>
+                </div>
+                <div class="footer-section">
+                    <h4 data-lang="footer.quickLinks">快速链接</h4>
+                    <a href="#collections" data-lang="nav.collections">系列</a>
+                    <a href="#products" data-lang="footer.products">商品</a>
+                    <a href="#about" data-lang="nav.about">关于</a>
+                </div>
+                <div class="footer-section">
+                    <h4 data-lang="footer.customerService">客户服务</h4>
+                    <a href="#" data-lang="footer.shipping">配送信息</a>
+                    <a href="#" data-lang="footer.returns">退换政策</a>
+                    <a href="#" data-lang="footer.faq">常见问题</a>
+                </div>
+                <div class="footer-section">
+                    <h4 data-lang="footer.contactUs">联系我们</h4>
+                    <a href="#" data-lang="footer.douyin">抖音/TikTok</a>
+                    <a href="#" data-lang="footer.xiaohongshu">小红书</a>
+                    <a href="#" data-lang="footer.wechat">微信</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 DozingCat. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="cart-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-lang="cart.title">购物车</h3>
+                <button onclick="closeCart()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="cart-items" class="cart-items"></div>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span data-lang="cart.totalItems">商品总数:</span>
+                        <span id="cart-quantity">0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span data-lang="cart.totalAmount">总金额:</span>
+                        <span id="cart-total">¥0.00</span>
+                    </div>
+                    <div class="summary-row selected-summary">
+                        <span data-lang="cart.selectedItems">已选商品:</span>
+                        <span id="selected-count">0</span>
+                    </div>
+                    <div class="summary-row selected-summary">
+                        <span data-lang="cart.selectedTotal">已选金额:</span>
+                        <span id="selected-total">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="checkout()" class="btn btn-primary" data-lang="cart.checkout">立即结算</button>
+                <button onclick="closeCart()" class="btn btn-secondary" data-lang="cart.continue">继续购物</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="payment-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-lang="payment.title">选择支付方式</h3>
+                <button onclick="closePayment()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="payment-options">
+                    <div class="payment-option" onclick="selectPayment('alipay')">
+                        <div class="payment-icon">
+                            <svg class="icon icon-lg">
+                                <use href="icons.svg#icon-sparkle"></use>
+                            </svg>
+                        </div>
+                        <div class="payment-info">
+                            <h4 data-lang="payment.alipay">支付宝</h4>
+                            <p data-lang="payment.alipayDesc">安全快捷的支付方式</p>
+                        </div>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('wechat')">
+                        <div class="payment-icon">
+                            <svg class="icon icon-lg">
+                                <use href="icons.svg#icon-chat"></use>
+                            </svg>
+                        </div>
+                        <div class="payment-info">
+                            <h4 data-lang="payment.wechat">微信支付</h4>
+                            <p data-lang="payment.wechatDesc">扫码支付，方便快捷</p>
+                        </div>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('card')">
+                        <div class="payment-icon">
+                            <svg class="icon icon-lg">
+                                <use href="icons.svg#icon-card"></use>
+                            </svg>
+                        </div>
+                        <div class="payment-info">
+                            <h4 data-lang="payment.card">银行卡</h4>
+                            <p data-lang="payment.cardDesc">支持主流银行卡</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="payment-summary">
+                    <div class="summary-row">
+                        <span data-lang="payment.orderAmount">订单金额:</span>
+                        <span id="payment-amount">¥0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span data-lang="payment.orderItems">商品数量:</span>
+                        <span id="payment-items">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="confirmPayment()" class="btn btn-primary" data-lang="payment.confirm">确认支付</button>
+                <button onclick="closePayment()" class="btn btn-secondary" data-lang="payment.cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal hidden">
+        <div class="modal-content login-modal-content">
+            <div class="modal-header">
+                <h3 data-lang="login.title">登录</h3>
+                <button onclick="closeLoginModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="member" onclick="switchTab('member')" data-lang="login.memberTab">会员登录</button>
+                    <button class="auth-tab" data-tab="admin" onclick="switchTab('admin')" data-lang="login.adminTab">管理员登录</button>
+                </div>
+                <form class="login-form" id="member-form" onsubmit="handleMemberLogin(event)">
+                    <div class="form-group">
+                        <label data-lang="login.email">会员账号</label>
+                        <input type="text" id="member-email" required placeholder="请输入会员账号">
+                    </div>
+                    <div class="form-group">
+                        <label data-lang="login.password">会员密码</label>
+                        <input type="password" id="member-password" required placeholder="•••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full" data-lang="login.submit">登录</button>
+                    <p class="register-link">
+                        <span data-lang="login.noAccount">还没有账号？</span>
+                        <a href="register.html" data-lang="login.register">立即注册</a>
+                    </p>
+                </form>
+                <form class="login-form hidden" id="admin-form" onsubmit="handleAdminLogin(event)">
+                    <div class="form-group">
+                        <label data-lang="login.adminUsername">管理员账号</label>
+                        <input type="text" id="admin-username" required placeholder="admin">
+                    </div>
+                    <div class="form-group">
+                        <label data-lang="login.adminPassword">管理员密码</label>
+                        <input type="password" id="admin-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full" data-lang="login.adminSubmit">管理员登录</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification hidden"></div>
+
+    <script>
+        console.log('index.html - 开始初始化');
+        let cart = [];
+        let products = [];
+        let lastAvatarCheck = '';
+
+        async function loadProductsFromSupabase() {
+            try {
+                console.log('检查立即加载的产品...');
+                let data;
+                
+                if (window.productsFromSupabase && window.productsFromSupabase.length > 0) {
+                    console.log('使用立即加载的产品');
+                    data = window.productsFromSupabase;
+                } else {
+                    console.log('重新从 Supabase 加载...');
+                    const sb = supabase.createClient(
+                        'https://dtkbnkqtgelwvtgmpaad.supabase.co',
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0a2Jua3F0Z2Vsd3Z0Z21wYWFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NDU4MzEsImV4cCI6MjA5MTMyMTgzMX0.RiitiByYneE0Fe9z6gNdwfDOrtYCbLXmhLA6w0xJYYM'
+                    );
+                    const result = await sb.from('products').select('*').limit(10);
+                    if (result.error) throw result.error;
+                    data = result.data;
+                }
+                
+                console.log('产品数据:', data);
+                if (data && data.length > 0) {
+                    products = data.map(p => ({
+                        id: p.id,
+                        name: { zh: p.name, en: p.name },
+                        description: { zh: p.description || '', en: p.description || '' },
+                        price: p.price,
+                        stock: p.stock,
+                        image: p.image,
+                        category: p.category
+                    }));
+                    renderProducts();
+                } else {
+                    console.log('使用本地产品');
+                    loadLocalProducts();
+                }
+            } catch (error) {
+                console.error('加载失败:', error);
+                loadLocalProducts();
+            }
+        }
+
+        function loadLocalProducts() {
+            products = JSON.parse(localStorage.getItem('adminProducts')) || [
+                {
+                    id: 1,
+                    name: { zh: '可爱猫咪玩偶', en: 'Cute Cat Doll' },
+                    description: { zh: '超柔软的猫咪玩偶，手感极佳，适合抱抱', en: 'Super soft cat doll with excellent touch, perfect for hugging' },
+                    price: 99.99,
+                    stock: 50,
+                    image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop'
+                },
+                {
+                    id: 2,
+                    name: { zh: '粉色猫咪马克杯', en: 'Pink Cat Mug' },
+                    description: { zh: '陶瓷材质，猫咪造型，粉色系设计', en: 'Ceramic material, cat-shaped design, pink color scheme' },
+                    price: 49.99,
+                    stock: 30,
+                    image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=400&h=400&fit=crop'
+                },
+                {
+                    id: 3,
+                    name: { zh: '猫咪主题笔记本', en: 'Cat Theme Notebook' },
+                    description: { zh: '精美笔记本，内页有猫咪插画', en: 'Exquisite notebook with cat illustrations inside' },
+                    price: 29.99,
+                    stock: 100,
+                    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=400&fit=crop'
+                },
+                {
+                    id: 4,
+                    name: { zh: '猫咪钥匙扣', en: 'Cat Keychain' },
+                    description: { zh: '可爱猫咪造型钥匙扣，多种颜色可选', en: 'Cute cat-shaped keychain, multiple colors available' },
+                    price: 19.99,
+                    stock: 200,
+                    image: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400&h=400&fit=crop'
+                },
+                {
+                    id: 5,
+                    name: { zh: '猫咪抱枕', en: 'Cat Pillow' },
+                    description: { zh: '大号猫咪抱枕，柔软舒适，适合午休', en: 'Large cat pillow, soft and comfortable, perfect for napping' },
+                    price: 159.99,
+                    stock: 20,
+                    image: 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=400&h=400&fit=crop'
+                },
+                {
+                    id: 6,
+                    name: { zh: '猫咪手机壳', en: 'Cat Phone Case' },
+                    description: { zh: '硅胶材质，猫咪造型，防摔保护', en: 'Silicone material, cat-shaped design, drop protection' },
+                    price: 39.99,
+                    stock: 80,
+                    image: 'https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=400&h=400&fit=crop'
+                }
+            ];
+            renderProducts();
+        }
+
+        async function loadCartFromSupabase() {
+            try {
+                const cartItems = await SupabaseManager.getCart();
+                cart = cartItems.map(item => ({
+                    id: item.product_id,
+                    cartItemId: item.id,
+                    name: { zh: item.products.name, en: item.products.name },
+                    description: { zh: item.products.description || '', en: item.products.description || '' },
+                    price: item.products.price,
+                    quantity: item.quantity,
+                    image: item.products.image,
+                    is_selected: item.is_selected
+                }));
+            } catch (error) {
+                console.error('加载购物车失败:', error);
+                cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            }
+            updateCartCount();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('products-grid');
+            
+            if (!grid) {
+                console.error('products-grid element not found!');
+                return;
+            }
+            
+            try {
+                grid.innerHTML = products.map(product => `
+                    <div class="product-card">
+                        ${product.image ? `<img src="${product.image}" alt="${product.name[currentLanguage]}" class="product-image">` : '<div class="product-image"></div>'}
+                        <div class="product-info">
+                            <h3>${product.name[currentLanguage]}</h3>
+                            <p>${product.description[currentLanguage]}</p>
+                            <div class="product-price">¥${product.price.toFixed(2)}</div>
+                            <div class="product-stock">${t('product.stock')} ${product.stock}</div>
+                            <div class="product-actions">
+                                <button onclick="addToCart('${product.id}')" class="btn btn-primary" ${product.stock <= 0 ? 'disabled' : ''}>
+                                    ${product.stock > 0 ? t('product.addToCart') : t('product.outOfStock')}
+                                </button>
+                                <button onclick="buyNow('${product.id}')" class="btn btn-secondary">
+                                    ${t('product.buyNow')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error rendering products:', error);
+            }
+        }
+
+        async function addToCart(productId) {
+            const isLoggedIn = SupabaseManager.isLoggedIn();
+            if (!isLoggedIn) {
+                showNotification('请先登录会员后再添加商品到购物车', 'error');
+                showLoginModal();
+                return;
+            }
+            
+            const product = products.find(p => p.id === productId);
+            if (!product || product.stock <= 0) return;
+
+            try {
+                await SupabaseManager.addToCart(productId, 1);
+                await loadCartFromSupabase();
+                showNotification(t('cart.addToCart'));
+            } catch (error) {
+                console.error('添加到购物车失败:', error);
+                addToCartLocal(productId);
+            }
+        }
+
+        function addToCartLocal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product || product.stock <= 0) return;
+
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                if (existingItem.quantity < product.stock) {
+                    existingItem.quantity++;
+                } else {
+                    showNotification(t('cart.outOfStock'), 'error');
+                    return;
+                }
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    description: product.description,
+                    price: product.price,
+                    quantity: 1,
+                    image: product.image
+                });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showNotification(t('cart.addToCart'));
+        }
+
+        function buyNow(productId) {
+            const isLoggedIn = SessionManager.isLoggedIn();
+            if (!isLoggedIn) {
+                showNotification('请先登录会员后再购买商品', 'error');
+                showLoginModal();
+                return;
+            }
+            
+            const product = products.find(p => p.id === productId);
+            if (!product || product.stock <= 0) {
+                showNotification(t('cart.productOutOfStock'), 'error');
+                return;
+            }
+            
+            cart = [{
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                quantity: 1,
+                image: product.image
+            }];
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showPaymentModal();
+        }
+
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').textContent = `(${count})`;
+        }
+
+        function showCart() {
+            renderCartItems();
+            document.getElementById('cart-modal').classList.remove('hidden');
+        }
+
+        function closeCart() {
+            document.getElementById('cart-modal').classList.add('hidden');
+        }
+
+        function renderCartItems() {
+            const cartItems = document.getElementById('cart-items');
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const quantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+            if (cart.length === 0) {
+                cartItems.innerHTML = `<p class="empty-cart">${t('cart.empty')}</p>`;
+            } else {
+                cartItems.innerHTML = cart.map(item => {
+                    const itemName = typeof item.name === 'object' ? item.name[currentLanguage] : item.name;
+                    const itemDesc = item.description && typeof item.description === 'object' ? item.description[currentLanguage] : (item.description || '');
+                    
+                    return `
+                    <div class="cart-item" data-id="${item.id}">
+                        <div class="cart-item-checkbox">
+                            <input type="checkbox" class="cart-checkbox" id="cart-item-${item.id}" 
+                                   onchange="toggleCartItem(${item.id})" checked>
+                        </div>
+                        <div class="cart-item-image">
+                            ${item.image ? `<img src="${item.image}" alt="${itemName}">` : `<div class="no-image">🐱</div>`}
+                        </div>
+                        <div class="cart-item-info">
+                            <h4>${itemName}</h4>
+                            <p class="cart-item-desc">${itemDesc}</p>
+                            <p class="cart-item-price">¥${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button onclick="updateQuantity(${item.id}, -1)" class="btn-quantity">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.id}, 1)" class="btn-quantity">+</button>
+                            <button onclick="removeFromCart(${item.id})" class="btn-remove">${t('cart.remove')}</button>
+                        </div>
+                    </div>
+                `}).join('');
+            }
+
+            document.getElementById('cart-quantity').textContent = quantity;
+            document.getElementById('cart-total').textContent = `¥${total.toFixed(2)}`;
+            
+            selectedItems = [...cart];
+            updateSelectedTotal();
+        }
+
+        let selectedItems = [];
+
+        function toggleCartItem(productId) {
+            const checkbox = document.getElementById(`cart-item-${productId}`);
+            const item = cart.find(i => i.id === productId);
+            
+            if (checkbox.checked) {
+                if (!selectedItems.find(i => i.id === productId)) {
+                    selectedItems.push(item);
+                }
+            } else {
+                selectedItems = selectedItems.filter(i => i.id !== productId);
+            }
+            
+            updateSelectedTotal();
+        }
+
+        function updateSelectedTotal() {
+            const selectedTotal = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const selectedCount = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
+            
+            const selectedTotalElement = document.getElementById('selected-total');
+            const selectedCountElement = document.getElementById('selected-count');
+            
+            if (selectedTotalElement) {
+                selectedTotalElement.textContent = `¥${selectedTotal.toFixed(2)}`;
+            }
+            if (selectedCountElement) {
+                selectedCountElement.textContent = selectedCount;
+            }
+        }
+
+        function updateQuantity(productId, change) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const newQuantity = item.quantity + change;
+            if (newQuantity <= 0) {
+                removeFromCart(productId);
+            } else if (newQuantity <= product.stock) {
+                item.quantity = newQuantity;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartCount();
+                renderCartItems();
+            } else {
+                showNotification(t('cart.outOfStock'), 'error');
+            }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            selectedItems = selectedItems.filter(item => item.id !== productId);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            renderCartItems();
+        }
+
+        function showPaymentModal() {
+            const selectedTotal = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const selectedCount = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
+            
+            document.getElementById('payment-amount').textContent = `¥${selectedTotal.toFixed(2)}`;
+            document.getElementById('payment-items').textContent = selectedCount;
+            
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function closePayment() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function selectPayment(method) {
+            const paymentUrls = {
+                'alipay': 'https://qr.alipay.com/example',
+                'wechat': 'https://pay.weixin.qq.com/example',
+                'card': 'https://example.com/card-payment'
+            };
+            
+            const url = paymentUrls[method];
+            if (url) {
+                window.open(url, '_blank');
+                
+                setTimeout(() => {
+                    selectedItems.forEach(item => {
+                        cart = cart.filter(c => c.id !== item.id);
+                    });
+                    selectedItems = [];
+                    updateCartCount();
+                    renderCartItems();
+                    closePayment();
+                    showNotification('订单创建成功，请在支付页面完成支付');
+                }, 500);
+            }
+        }
+
+        function confirmPayment() {
+            if (selectedItems.length === 0) {
+                showNotification('请选择要支付的商品', 'error');
+                return;
+            }
+            
+            showNotification('正在跳转到支付页面...', 'info');
+            
+            setTimeout(() => {
+                window.open('https://example.com/payment', '_blank');
+                
+                selectedItems.forEach(item => {
+                    cart = cart.filter(c => c.id !== item.id);
+                });
+                selectedItems = [];
+                updateCartCount();
+                renderCartItems();
+                closePayment();
+                showNotification('订单创建成功！');
+            }, 1000);
+        }
+
+        function checkout() {
+            if (selectedItems.length === 0) {
+                showNotification('请先选择要结算的商品', 'error');
+                return;
+            }
+            closeCart();
+            showPaymentModal();
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : type === 'info' ? 'info' : ''}`;
+            notification.classList.remove('hidden');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        function showLoginModal() {
+            const modal = document.getElementById('login-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function checkLoginStatus() {
+            const isLoggedIn = SessionManager.isLoggedIn();
+            
+            const memberLoginBtn = document.getElementById('member-login-btn');
+            const navMemberSection = document.getElementById('nav-member-section');
+            const loginLangGroup = document.getElementById('login-lang-group');
+            const memberAvatarDisplay = document.getElementById('member-avatar-display');
+            
+            if (isLoggedIn) {
+                memberLoginBtn.classList.add('hidden');
+                loginLangGroup.classList.add('hidden');
+                navMemberSection.classList.remove('hidden');
+                
+                const savedAvatar = UserDataManager.getAvatar();
+                if (savedAvatar) {
+                    if (savedAvatar.startsWith('data:image') || savedAvatar.startsWith('http')) {
+                        memberAvatarDisplay.innerHTML = `<img src="${savedAvatar}" alt="会员头像" class="member-avatar-img" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    } else {
+                        memberAvatarDisplay.textContent = savedAvatar;
+                    }
+                }
+            } else {
+                memberLoginBtn.classList.remove('hidden');
+                loginLangGroup.classList.remove('hidden');
+                navMemberSection.classList.add('hidden');
+            }
+        }
+
+        function checkAvatarUpdate() {
+            const currentAvatar = UserDataManager.getAvatar();
+            if (currentAvatar !== lastAvatarCheck) {
+                lastAvatarCheck = currentAvatar;
+                checkLoginStatus();
+            }
+        }
+
+        function goToMemberDashboard() {
+            window.location.href = 'member-dashboard.html';
+        }
+
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.auth-tab');
+            const memberForm = document.getElementById('member-form');
+            const adminForm = document.getElementById('admin-form');
+
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+            if (tab === 'member') {
+                memberForm.classList.remove('hidden');
+                adminForm.classList.add('hidden');
+            } else {
+                memberForm.classList.add('hidden');
+                adminForm.classList.remove('hidden');
+            }
+        }
+
+        async function handleMemberLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('member-email').value;
+            const password = document.getElementById('member-password').value;
+            
+            if (!email || !password) {
+                showNotification('请填写会员账号和密码', 'error');
+                return;
+            }
+            
+            try {
+                const user = await SupabaseManager.login(email, password);
+                
+                SessionManager.login({
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    level: '普通会员',
+                    discount: 1.0,
+                    loginTime: new Date().toISOString()
+                });
+                
+                await loadCartFromSupabase();
+                showNotification(`欢迎回来，${user.name || user.email}！`, 'success');
+                closeLoginModal();
+                
+                setTimeout(() => {
+                    window.location.href = 'member-dashboard.html';
+                }, 500);
+            } catch (error) {
+                console.error('登录失败:', error);
+                showNotification('账号或密码错误', 'error');
+            }
+        }
+
+        async function handleAdminLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            
+            try {
+                const user = await SupabaseManager.adminLogin(username, password);
+                
+                SessionManager.login({
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    role: 'admin',
+                    loginTime: new Date().toISOString()
+                });
+                
+                showNotification(t('login.success') + ' 正在跳转...', 'success');
+                closeLoginModal();
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1000);
+            } catch (error) {
+                console.error('管理员登录失败:', error);
+                showNotification('管理员账号或密码错误', 'error');
+            }
+        }
+
+        function sendVerificationCode() {
+            const phone = document.getElementById('member-phone').value;
+            if (phone) {
+                showNotification('验证码已发送到 ' + phone, 'success');
+            } else {
+                showNotification('请输入手机号码', 'error');
+            }
+        }
+
+        function showRegisterModal() {
+            showNotification('注册功能开发中...', 'info');
+        }
+
+        function logout() {
+            console.log('Logout called, current cart:', cart);
+            SessionManager.logout();
+            showNotification('已退出登录', 'success');
+            checkLoginStatus();
+            window.location.href = 'index.html';
+        }
+
+        function toggleMemberMenu() {
+            const dropdownMenu = document.getElementById('member-dropdown-menu');
+            dropdownMenu.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', function(event) {
+            const memberDropdown = document.getElementById('member-dropdown');
+            if (memberDropdown && !memberDropdown.contains(event.target)) {
+                const dropdownMenu = document.getElementById('member-dropdown-menu');
+                if (dropdownMenu) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            }
+        });
+
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            if (index >= totalSlides) currentSlide = 0;
+            if (index < 0) currentSlide = totalSlides - 1;
+            
+            const track = document.querySelector('.carousel-track');
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            SessionManager.init();
+            SecurityUtils.addSecurityHeaders();
+            SecurityUtils.preventRightClick();
+            SecurityUtils.showSecurityBadge();
+            
+            await loadProductsFromSupabase();
+            await loadCartFromSupabase();
+            
+            setInterval(nextSlide, 4000);
+            setInterval(checkAvatarUpdate, 1000);
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('openLogin') === 'true') {
+                showLoginModal();
+            }
+            
+            checkLoginStatus();
+            updateCartCount();
+            
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'userSession' || e.key === 'userSession_backup') {
+                    checkLoginStatus();
+                    updateCartCount();
+                }
+                if (e.key === 'cart') {
+                    cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                    updateCartCount();
+                }
+            });
+            
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    showSlide(currentSlide);
+                });
+            });
+
+            const track = document.querySelector('.carousel-track');
+            let isDragging = false;
+            let startPos = 0;
+            let currentTranslate = 0;
+            let prevTranslate = 0;
+            let animationID;
+
+            function touchStart(index) {
+                return function(event) {
+                    isDragging = true;
+                    startPos = getPositionX(event);
+                    animationID = requestAnimationFrame(animation);
+                    track.style.cursor = 'grabbing';
+                }
+            }
+
+            function touchEnd() {
+                isDragging = false;
+                cancelAnimationFrame(animationID);
+                track.style.cursor = 'grab';
+                
+                const movedBy = currentTranslate - prevTranslate;
+                if (movedBy < -50) {
+                    nextSlide();
+                } else if (movedBy > 50) {
+                    prevSlide();
+                }
+                currentTranslate = -currentSlide * 100;
+                prevTranslate = currentTranslate;
+                track.style.transform = `translateX(${currentTranslate}%)`;
+            }
+
+            function touchMove(event) {
+                if (isDragging) {
+                    const currentPosition = getPositionX(event);
+                    const diff = currentPosition - startPos;
+                    currentTranslate = prevTranslate + (diff / track.offsetWidth) * 100;
+                    track.style.transform = `translateX(${currentTranslate}%)`;
+                    updateCatPaw(event.pageX, event.pageY, true);
+                }
+            }
+
+            function getPositionX(event) {
+                return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+            }
+
+            function animation() {
+                if (isDragging) requestAnimationFrame(animation);
+            }
+
+            track.addEventListener('mousedown', touchStart(0));
+            track.addEventListener('touchstart', touchStart(0));
+
+            track.addEventListener('mouseup', touchEnd);
+            track.addEventListener('mouseleave', touchEnd);
+            track.addEventListener('touchend', touchEnd);
+
+            track.addEventListener('mousemove', touchMove);
+            track.addEventListener('touchmove', touchMove);
+
+            track.style.cursor = 'grab';
+            
+            initCustomerServiceDrag();
+        });
+
+        let csWidget = null;
+        let csWidgetDragging = false;
+        let csWidgetOffset = { x: 0, y: 0 };
+
+        function toggleCustomerService() {
+            const panel = document.getElementById('csPanel');
+            panel.classList.toggle('show');
+        }
+
+        function initCustomerServiceDrag() {
+            csWidget = document.querySelector('.customer-service-widget');
+            
+            csWidget.addEventListener('mousedown', startCsDrag);
+            csWidget.addEventListener('touchstart', startCsDrag);
+            
+            document.addEventListener('mousemove', doCsDrag);
+            document.addEventListener('touchmove', doCsDrag);
+            
+            document.addEventListener('mouseup', stopCsDrag);
+            document.addEventListener('touchend', stopCsDrag);
+        }
+
+        function startCsDrag(e) {
+            if (e.target.closest('.cs-panel') || e.target.closest('.cs-toggle-btn')) {
+                return;
+            }
+            
+            e.preventDefault();
+            csWidgetDragging = true;
+            csWidget.classList.add('dragging');
+            
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            
+            const rect = csWidget.getBoundingClientRect();
+            csWidgetOffset.x = clientX - rect.left;
+            csWidgetOffset.y = clientY - rect.top;
+        }
+
+        function doCsDrag(e) {
+            if (!csWidgetDragging) return;
+            
+            e.preventDefault();
+            
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            
+            let newX = clientX - csWidgetOffset.x;
+            let newY = clientY - csWidgetOffset.y;
+            
+            const maxX = window.innerWidth - csWidget.offsetWidth;
+            const maxY = window.innerHeight - csWidget.offsetHeight;
+            
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(0, Math.min(newY, maxY));
+            
+            csWidget.style.left = newX + 'px';
+            csWidget.style.top = newY + 'px';
+            csWidget.style.right = 'auto';
+            csWidget.style.bottom = 'auto';
+        }
+
+        function stopCsDrag() {
+            if (csWidgetDragging) {
+                csWidgetDragging = false;
+                csWidget.classList.remove('dragging');
+            }
+        }
+
+        function handleCsKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendCsMessage();
+            }
+        }
+
+        function sendCsMessage() {
+            const input = document.getElementById('csInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesContainer = document.getElementById('csMessages');
+            
+            const userMessage = document.createElement('div');
+            userMessage.className = 'cs-message cs-message-user';
+            userMessage.innerHTML = `
+                <span class="cs-message-content">${message}</span>
+                <span class="cs-message-time">刚刚</span>
+            `;
+            messagesContainer.appendChild(userMessage);
+            
+            input.value = '';
+            
+            setTimeout(() => {
+                const responses = [
+                    '感谢您的咨询，我们会尽快为您处理！',
+                    '您的问题已收到，客服稍后会联系您。',
+                    '好的，我明白了您的需求。',
+                    '请稍等，正在为您查询相关信息...',
+                    '感谢您的耐心等待，我们正在处理中。'
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                
+                const systemMessage = document.createElement('div');
+                systemMessage.className = 'cs-message cs-message-system';
+                systemMessage.innerHTML = `
+                    <span class="cs-message-content">${randomResponse}</span>
+                    <span class="cs-message-time">刚刚</span>
+                `;
+                messagesContainer.appendChild(systemMessage);
+                
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 1000);
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    </script>
+
+    <div class="customer-service-widget">
+        <button class="cs-toggle-btn" onclick="toggleCustomerService()">
+            <span class="cs-icon">💬</span>
+        </button>
+        <div class="cs-panel" id="csPanel">
+            <div class="cs-header">
+                <h3>客服对话</h3>
+                <button onclick="toggleCustomerService()" class="cs-close">&times;</button>
+            </div>
+            <div class="cs-messages" id="csMessages">
+                <div class="cs-message cs-message-system">
+                    <span class="cs-message-content">您好！我是智能客服，有什么可以帮助您的吗？</span>
+                    <span class="cs-message-time">刚刚</span>
+                </div>
+            </div>
+            <div class="cs-input-area">
+                <input type="text" id="csInput" placeholder="输入您的问题..." onkeypress="handleCsKeyPress(event)">
+                <button onclick="sendCsMessage()" class="cs-send-btn">发送</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

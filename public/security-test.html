@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全测试 - DozingCat</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/security.js"></script>
+    <style>
+        .security-test-page {
+            padding: 3rem 0;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 182, 193, 0.2);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .test-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #4a3728;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .test-item {
+            background: rgba(255, 249, 240, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 182, 193, 0.15);
+        }
+        
+        .test-item h3 {
+            font-size: 1.1rem;
+            color: #4a3728;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .test-item input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid rgba(255, 182, 193, 0.3);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+        
+        .test-item input:focus {
+            outline: none;
+            border-color: #ffb6c1;
+            box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.2);
+        }
+        
+        .test-item button {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #ffb6c1 0%, #ffd700 100%);
+            border: none;
+            border-radius: 8px;
+            color: #4a3728;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .test-item button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 182, 193, 0.4);
+        }
+        
+        .test-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .test-result.success {
+            background: rgba(135, 206, 235, 0.2);
+            border: 1px solid rgba(135, 206, 235, 0.3);
+            color: #2c5f8c;
+        }
+        
+        .test-result.error {
+            background: rgba(255, 153, 153, 0.2);
+            border: 1px solid rgba(255, 153, 153, 0.3);
+            color: #8c2c2c;
+        }
+        
+        .test-result.info {
+            background: rgba(255, 182, 193, 0.2);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            color: #8c5c5c;
+        }
+        
+        .security-status {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .status-item {
+            flex: 1;
+            min-width: 150px;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .status-item.active {
+            background: rgba(135, 206, 235, 0.3);
+            border: 1px solid rgba(135, 206, 235, 0.4);
+        }
+        
+        .status-item.inactive {
+            background: rgba(255, 153, 153, 0.3);
+            border: 1px solid rgba(255, 153, 153, 0.4);
+        }
+        
+        .status-item .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-item .label {
+            font-size: 0.9rem;
+            color: #4a3728;
+            font-weight: 600;
+        }
+        
+        .log-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 182, 193, 0.2);
+        }
+        
+        .log-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255, 182, 193, 0.15);
+            font-size: 0.85rem;
+        }
+        
+        .log-item:last-child {
+            border-bottom: none;
+        }
+        
+        .log-time {
+            color: #8b6f5c;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .log-event {
+            color: #4a3728;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .log-details {
+            color: #8b6f5c;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>DozingCat</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="index.html#collections" class="nav-link">系列</a>
+                <a href="index.html#about" class="nav-link">关于</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="security-test-page">
+        <div class="container">
+            <div class="test-section">
+                <h2>🔒 安全状态检查</h2>
+                <div class="security-status" id="security-status">
+                    <div class="status-item">
+                        <div class="icon">🔐</div>
+                        <div class="label">HTTPS</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="icon">🍪</div>
+                        <div class="label">Cookies</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="icon">🛡️</div>
+                        <div class="label">安全上下文</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="icon">🚫</div>
+                        <div class="label">不跟踪</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h2>🔐 数据加密测试</h2>
+                <div class="test-grid">
+                    <div class="test-item">
+                        <h3>文本加密</h3>
+                        <input type="text" id="encrypt-input" placeholder="输入要加密的文本">
+                        <button onclick="testEncryption()">加密</button>
+                        <div id="encrypt-result" class="test-result"></div>
+                    </div>
+                    <div class="test-item">
+                        <h3>文本解密</h3>
+                        <input type="text" id="decrypt-input" placeholder="输入要解密的文本">
+                        <button onclick="testDecryption()">解密</button>
+                        <div id="decrypt-result" class="test-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h2>🛡️ 输入验证测试</h2>
+                <div class="test-grid">
+                    <div class="test-item">
+                        <h3>邮箱验证</h3>
+                        <input type="email" id="email-input" placeholder="输入邮箱地址">
+                        <button onclick="testEmailValidation()">验证</button>
+                        <div id="email-result" class="test-result"></div>
+                    </div>
+                    <div class="test-item">
+                        <h3>手机号验证</h3>
+                        <input type="tel" id="phone-input" placeholder="输入手机号">
+                        <button onclick="testPhoneValidation()">验证</button>
+                        <div id="phone-result" class="test-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h2>🔑 密码强度测试</h2>
+                <div class="test-item">
+                    <h3>密码强度检查</h3>
+                    <input type="password" id="password-input" placeholder="输入密码">
+                    <button onclick="testPasswordStrength()">检查强度</button>
+                    <div id="password-result" class="test-result"></div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h2>🎭 数据脱敏测试</h2>
+                <div class="test-grid">
+                    <div class="test-item">
+                        <h3>手机号脱敏</h3>
+                        <input type="tel" id="mask-phone-input" placeholder="输入手机号">
+                        <button onclick="testPhoneMask()">脱敏</button>
+                        <div id="mask-phone-result" class="test-result"></div>
+                    </div>
+                    <div class="test-item">
+                        <h3>邮箱脱敏</h3>
+                        <input type="email" id="mask-email-input" placeholder="输入邮箱">
+                        <button onclick="testEmailMask()">脱敏</button>
+                        <div id="mask-email-result" class="test-result"></div>
+                    </div>
+                    <div class="test-item">
+                        <h3>银行卡脱敏</h3>
+                        <input type="text" id="mask-card-input" placeholder="输入银行卡号">
+                        <button onclick="testCardMask()">脱敏</button>
+                        <div id="mask-card-result" class="test-result"></div>
+                    </div>
+                    <div class="test-item">
+                        <h3>银行账户脱敏</h3>
+                        <input type="text" id="mask-bank-input" placeholder="输入银行账户">
+                        <button onclick="testBankMask()">脱敏</button>
+                        <div id="mask-bank-result" class="test-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <h2>📋 安全日志</h2>
+                <div class="log-container" id="security-log">
+                    <div class="log-item">
+                        <div class="log-time">暂无安全日志</div>
+                    </div>
+                </div>
+                <button onclick="clearSecurityLog()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #ffb6c1 0%, #ffd700 100%); border: none; border-radius: 8px; color: #4a3728; font-weight: 600; cursor: pointer;">清除日志</button>
+            </div>
+        </div>
+    </main>
+
+    <div id="notification" class="notification hidden"></div>
+
+    <script>
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : type === 'info' ? 'info' : ''}`;
+            notification.classList.remove('hidden');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `test-result ${type}`;
+        }
+
+        function checkSecurityStatus() {
+            const status = SecurityUtils.checkSecurity();
+            const statusItems = document.querySelectorAll('.status-item');
+            
+            statusItems[0].className = `status-item ${status.https ? 'active' : 'inactive'}`;
+            statusItems[1].className = `status-item ${status.cookiesEnabled ? 'active' : 'inactive'}`;
+            statusItems[2].className = `status-item ${status.secureContext ? 'active' : 'inactive'}`;
+            statusItems[3].className = `status-item ${status.doNotTrack ? 'active' : 'inactive'}`;
+        }
+
+        function testEncryption() {
+            const input = document.getElementById('encrypt-input').value;
+            if (!input) {
+                showResult('encrypt-result', '请输入要加密的文本', 'error');
+                return;
+            }
+            
+            const encrypted = SecurityUtils.encrypt(input);
+            if (encrypted) {
+                showResult('encrypt-result', `加密结果: ${encrypted}`, 'success');
+                SecurityUtils.logSecurityEvent('encryption_test', { inputLength: input.length });
+            } else {
+                showResult('encrypt-result', '加密失败', 'error');
+            }
+        }
+
+        function testDecryption() {
+            const input = document.getElementById('decrypt-input').value;
+            if (!input) {
+                showResult('decrypt-result', '请输入要解密的文本', 'error');
+                return;
+            }
+            
+            const decrypted = SecurityUtils.decrypt(input);
+            if (decrypted) {
+                showResult('decrypt-result', `解密结果: ${JSON.stringify(decrypted)}`, 'success');
+                SecurityUtils.logSecurityEvent('decryption_test', { inputLength: input.length });
+            } else {
+                showResult('decrypt-result', '解密失败，请检查输入', 'error');
+            }
+        }
+
+        function testEmailValidation() {
+            const email = document.getElementById('email-input').value;
+            const isValid = SecurityUtils.validateEmail(email);
+            
+            if (isValid) {
+                showResult('email-result', '✓ 邮箱格式正确', 'success');
+            } else {
+                showResult('email-result', '✗ 邮箱格式不正确', 'error');
+            }
+        }
+
+        function testPhoneValidation() {
+            const phone = document.getElementById('phone-input').value;
+            const isValid = SecurityUtils.validatePhone(phone);
+            
+            if (isValid) {
+                showResult('phone-result', '✓ 手机号格式正确', 'success');
+            } else {
+                showResult('phone-result', '✗ 手机号格式不正确（需要11位数字，1开头）', 'error');
+            }
+        }
+
+        function testPasswordStrength() {
+            const password = document.getElementById('password-input').value;
+            if (!password) {
+                showResult('password-result', '请输入密码', 'error');
+                return;
+            }
+            
+            const validation = SecurityUtils.validatePassword(password);
+            
+            let message = `密码强度: ${validation.strength}\n`;
+            if (validation.errors.length > 0) {
+                message += '\n问题:\n' + validation.errors.join('\n');
+            } else {
+                message += '\n✓ 密码符合安全要求';
+            }
+            
+            showResult('password-result', message, validation.isValid ? 'success' : 'error');
+            SecurityUtils.logSecurityEvent('password_test', { strength: validation.strength });
+        }
+
+        function testPhoneMask() {
+            const phone = document.getElementById('mask-phone-input').value;
+            const masked = SecurityUtils.maskSensitiveData(phone, 'phone');
+            showResult('mask-phone-result', `脱敏结果: ${masked}`, 'success');
+        }
+
+        function testEmailMask() {
+            const email = document.getElementById('mask-email-input').value;
+            const masked = SecurityUtils.maskSensitiveData(email, 'email');
+            showResult('mask-email-result', `脱敏结果: ${masked}`, 'success');
+        }
+
+        function testCardMask() {
+            const card = document.getElementById('mask-card-input').value;
+            const masked = SecurityUtils.maskSensitiveData(card, 'card');
+            showResult('mask-card-result', `脱敏结果: ${masked}`, 'success');
+        }
+
+        function testBankMask() {
+            const bank = document.getElementById('mask-bank-input').value;
+            const masked = SecurityUtils.maskSensitiveData(bank, 'bank');
+            showResult('mask-bank-result', `脱敏结果: ${masked}`, 'success');
+        }
+
+        function loadSecurityLog() {
+            const log = JSON.parse(localStorage.getItem('securityLog') || '[]');
+            const container = document.getElementById('security-log');
+            
+            if (log.length === 0) {
+                container.innerHTML = '<div class="log-item"><div class="log-time">暂无安全日志</div></div>';
+                return;
+            }
+            
+            container.innerHTML = log.map(item => `
+                <div class="log-item">
+                    <div class="log-time">${new Date(item.timestamp).toLocaleString('zh-CN')}</div>
+                    <div class="log-event">${item.event}</div>
+                    <div class="log-details">${JSON.stringify(item.details)}</div>
+                </div>
+            `).join('');
+        }
+
+        function clearSecurityLog() {
+            localStorage.removeItem('securityLog');
+            loadSecurityLog();
+            showNotification('安全日志已清除');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            SecurityUtils.addSecurityHeaders();
+            SecurityUtils.preventRightClick();
+            SecurityUtils.preventDevTools();
+            SecurityUtils.showSecurityBadge();
+            
+            checkSecurityStatus();
+            loadSecurityLog();
+            
+            setInterval(loadSecurityLog, 5000);
+        });
+    </script>
+</body>
+</html>

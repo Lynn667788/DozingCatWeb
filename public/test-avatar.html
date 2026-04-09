@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>头像上传测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #ddd;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+            overflow: hidden;
+        }
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-preview span {
+            font-size: 60px;
+        }
+        .upload-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .upload-btn:hover {
+            background: #45a049;
+        }
+        .clear-btn {
+            background: #f44336;
+        }
+        .clear-btn:hover {
+            background: #da190b;
+        }
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+        .console-log {
+            background: #333;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 头像上传测试</h1>
+        
+        <div class="info-box">
+            <strong>测试说明：</strong>
+            <ul>
+                <li>点击"上传头像"选择图片</li>
+                <li>支持JPG、PNG、GIF、WebP格式</li>
+                <li>最大文件大小：5MB</li>
+                <li>上传后头像会自动保存到localStorage</li>
+                <li>刷新页面后头像会自动加载</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center;">
+            <div class="avatar-preview" id="avatar-preview">
+                <span>🐱</span>
+            </div>
+            
+            <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+            <button class="upload-btn" onclick="document.getElementById('avatar-input').click()">📤 上传头像</button>
+            <button class="upload-btn clear-btn" onclick="clearAvatar()">🗑️ 清除头像</button>
+        </div>
+
+        <div class="info-box">
+            <strong>调试信息：</strong>
+            <div id="debug-info">等待上传...</div>
+        </div>
+
+        <div class="console-log" id="console-log">
+            <div>控制台日志：</div>
+        </div>
+    </div>
+
+    <script>
+        const avatarPreview = document.getElementById('avatar-preview');
+        const avatarInput = document.getElementById('avatar-input');
+        const debugInfo = document.getElementById('debug-info');
+        const consoleLog = document.getElementById('console-log');
+
+        function log(message) {
+            const time = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${time}] ${message}`;
+            consoleLog.appendChild(logEntry);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+            console.log(message);
+        }
+
+        function updateDebugInfo(info) {
+            debugInfo.innerHTML = info;
+        }
+
+        avatarInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            log(`开始上传头像: ${file.name}`);
+            log(`文件类型: ${file.type}`);
+            log(`文件大小: ${(file.size / 1024).toFixed(2)} KB`);
+
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                log('❌ 错误: 文件太大，请选择小于5MB的图片');
+                alert('图片太大，请选择小于5MB的图片');
+                return;
+            }
+
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                log('❌ 错误: 不支持的图片格式');
+                alert('不支持的图片格式，请选择JPG、PNG或GIF');
+                return;
+            }
+
+            log('✅ 文件验证通过，开始读取...');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatarData = e.target.result;
+                
+                log(`✅ 图片读取成功，数据长度: ${avatarData.length}`);
+                log(`数据类型: ${typeof avatarData}`);
+                log(`数据前100字符: ${avatarData.substring(0, 100)}...`);
+                
+                try {
+                    localStorage.setItem('memberAvatar', avatarData);
+                    log('✅ 头像已保存到localStorage');
+                    
+                    avatarPreview.innerHTML = `<img src="${avatarData}" alt="头像">`;
+                    log('✅ 头像已显示在页面上');
+                    
+                    updateDebugInfo(`
+                        <strong>上传成功！</strong><br>
+                        文件名: ${file.name}<br>
+                        文件大小: ${(file.size / 1024).toFixed(2)} KB<br>
+                        数据长度: ${avatarData.length} 字符<br>
+                        localStorage: 已保存
+                    `);
+                    
+                    alert('头像上传成功！');
+                } catch (error) {
+                    log(`❌ 保存失败: ${error.message}`);
+                    alert('头像保存失败，请重试');
+                }
+            };
+
+            reader.onerror = function(error) {
+                log(`❌ 读取失败: ${error}`);
+                alert('头像上传失败，请重试');
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        function clearAvatar() {
+            if (confirm('确定要清除头像吗？')) {
+                localStorage.removeItem('memberAvatar');
+                avatarPreview.innerHTML = '<span>🐱</span>';
+                updateDebugInfo('头像已清除');
+                log('🗑️ 头像已从localStorage清除');
+            }
+        }
+
+        function loadSavedAvatar() {
+            const savedAvatar = localStorage.getItem('memberAvatar');
+            log('检查localStorage中的头像...');
+            
+            if (savedAvatar) {
+                log('✅ 找到保存的头像');
+                avatarPreview.innerHTML = `<img src="${savedAvatar}" alt="头像">`;
+                updateDebugInfo(`
+                    <strong>已加载保存的头像</strong><br>
+                    数据长度: ${savedAvatar.length} 字符<br>
+                    数据类型: ${savedAvatar.startsWith('data:image') ? 'Base64图片' : '其他'}
+                `);
+            } else {
+                log('ℹ️ 没有保存的头像，使用默认头像');
+                avatarPreview.innerHTML = '<span>🐱</span>';
+                updateDebugInfo('使用默认头像');
+            }
+        }
+
+        window.addEventListener('load', function() {
+            log('页面加载完成');
+            loadSavedAvatar();
+        });
+    </script>
+</body>
+</html>

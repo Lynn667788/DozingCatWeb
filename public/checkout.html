@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结算 - DozingCat</title>
+    <link rel="stylesheet" href="css/style.css?v=1.0.6">
+    <link rel="stylesheet" href="css/taobao-shopify-cart.css?v=1.0.6">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="js/security.js"></script>
+    <script src="js/session-manager.js"></script>
+    <script src="js/language.js?v=1.0.2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>DozingCat</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" data-lang="nav.home">首页</a>
+                <a href="index.html#collections" data-lang="nav.collections">系列</a>
+                <a href="index.html#about" data-lang="nav.about">关于</a>
+                <div class="nav-right-section">
+                    <button onclick="toggleLanguage()" class="lang-btn" id="checkout-lang-btn">EN</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="shopify-checkout-page">
+        <div class="taobao-shopify-cart-banner">
+            <div class="banner-content">
+                <div class="logo-animation">
+                    <span class="logo-text">DozingCat</span>
+                    <span class="logo-emoji">🐱</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="checkout-container">
+            <div class="checkout-main">
+                <div class="checkout-section">
+                    <h2 class="section-title" data-lang="checkout.shippingInfo">收货信息</h2>
+                    <form id="shipping-form" class="shipping-form">
+                        <div class="form-group">
+                            <label for="shipping-name" data-lang="checkout.name">收货人姓名 *</label>
+                            <input type="text" id="shipping-name" required placeholder="请输入收货人姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-phone" data-lang="checkout.phone">联系电话 *</label>
+                            <input type="tel" id="shipping-phone" required placeholder="请输入联系电话">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-email" data-lang="checkout.email">邮箱地址 *</label>
+                            <input type="email" id="shipping-email" required placeholder="请输入邮箱地址">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-address" data-lang="checkout.address">详细地址 *</label>
+                            <input type="text" id="shipping-address" required placeholder="省/市/区/街道/门牌号">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-country" data-lang="checkout.country">国家 *</label>
+                            <select id="shipping-country" required>
+                                <option value="" data-lang="checkout.selectCountry">请选择国家</option>
+                                <option value="中国">中国</option>
+                                <option value="美国">美国</option>
+                                <option value="英国">英国</option>
+                                <option value="日本">日本</option>
+                                <option value="韩国">韩国</option>
+                                <option value="新加坡">新加坡</option>
+                                <option value="澳大利亚">澳大利亚</option>
+                                <option value="加拿大">加拿大</option>
+                                <option value="德国">德国</option>
+                                <option value="法国">法国</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="shipping-province" data-lang="checkout.province">省份 *</label>
+                                <select id="shipping-province" required>
+                                    <option value="" data-lang="checkout.selectProvince">请选择省份</option>
+                                    <option value="北京">北京</option>
+                                    <option value="上海">上海</option>
+                                    <option value="广东">广东</option>
+                                    <option value="浙江">浙江</option>
+                                    <option value="江苏">江苏</option>
+                                    <option value="四川">四川</option>
+                                    <option value="湖北">湖北</option>
+                                    <option value="湖南">湖南</option>
+                                    <option value="福建">福建</option>
+                                    <option value="山东">山东</option>
+                                    <option value="河南">河南</option>
+                                    <option value="河北">河北</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="shipping-city" data-lang="checkout.city">城市 *</label>
+                                <input type="text" id="shipping-city" required placeholder="请输入城市">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-zip" data-lang="checkout.zip">邮政编码</label>
+                            <input type="text" id="shipping-zip" placeholder="请输入邮政编码">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-note" data-lang="checkout.note">备注信息</label>
+                            <textarea id="shipping-note" rows="3" placeholder="如有特殊要求请备注"></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="checkout-sidebar">
+                <div class="order-summary-card">
+                    <h2 class="summary-title" data-lang="checkout.orderSummary">订单摘要</h2>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row">
+                        <span data-lang="checkout.itemCount">商品数量</span>
+                        <span id="summary-count">0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span data-lang="checkout.subtotal">商品总价</span>
+                        <span id="summary-subtotal">¥0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span data-lang="checkout.shipping">运费</span>
+                        <span id="summary-shipping">¥0.00</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row summary-total">
+                        <span data-lang="checkout.total">应付金额</span>
+                        <span id="summary-total">¥0.00</span>
+                    </div>
+                    <button onclick="proceedToPayment()" class="checkout-button" data-lang="checkout.pay">
+                        去支付
+                    </button>
+                    <button onclick="goBack()" class="back-button" data-lang="checkout.back">
+                        返回购物车
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        .shopify-checkout-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 40px;
+            margin-top: 24px;
+        }
+
+        .checkout-main {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .checkout-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 32px;
+            border: 1px solid #e1e3e8;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 24px 0;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .shipping-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a1a1a;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 14px 16px;
+            border: 1px solid #e1e3e8;
+            border-radius: 6px;
+            font-size: 16px;
+            color: #1a1a1a;
+            font-family: 'Noto Sans SC', sans-serif;
+            transition: all 0.2s ease;
+            background: #fff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1a1a1a;
+            box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkout-sidebar {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .order-summary-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #e1e3e8;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 20px 0;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .order-items {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 12px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .order-item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .order-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .order-item-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .order-item-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .order-item-quantity {
+            font-size: 14px;
+            color: #6b7280;
+            margin: 4px 0;
+        }
+
+        .order-item-price {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a1a1a;
+            text-align: right;
+        }
+
+        .summary-divider {
+            height: 1px;
+            background: #e1e3e8;
+            margin: 16px 0;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .summary-row span:first-child {
+            font-size: 16px;
+            color: #6b7280;
+        }
+
+        .summary-row span:last-child {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .summary-total {
+            margin-top: 16px;
+            padding-top: 16px;
+        }
+
+        .summary-total span:first-child {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .summary-total span:last-child {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .checkout-button {
+            width: 100%;
+            padding: 16px 24px;
+            background: #1a1a1a;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 24px;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .checkout-button:hover {
+            background: #333;
+            transform: translateY(-1px);
+        }
+
+        .checkout-button:active {
+            transform: translateY(0);
+        }
+
+        .back-button {
+            width: 100%;
+            padding: 14px 24px;
+            background: transparent;
+            color: #6b7280;
+            border: 1px solid #e1e3e8;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 12px;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .back-button:hover {
+            background: #f8f9fa;
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+        @media (max-width: 1024px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+
+            .checkout-sidebar {
+                position: static;
+            }
+
+            .order-summary-card {
+                margin-top: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .shopify-checkout-page {
+                padding: 20px 16px;
+            }
+
+            .checkout-section {
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .order-summary-card {
+                padding: 20px;
+            }
+        }
+    </style>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let selectedItems = [];
+        let currentLang = localStorage.getItem('language') || 'zh';
+        let currentCurrency = localStorage.getItem('currency') || 'CNY';
+        
+        const currencySymbols = {
+            'CNY': '¥',
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'JPY': '¥'
+        };
+
+        const currencyRates = {
+            'CNY': 1,
+            'USD': 0.14,
+            'EUR': 0.13,
+            'GBP': 0.11,
+            'JPY': 20.5
+        };
+
+        function formatPrice(price) {
+            const symbol = currencySymbols[currentCurrency];
+            const convertedPrice = price * currencyRates[currentCurrency];
+            return `${symbol}${convertedPrice.toFixed(2)}`;
+        }
+
+        function loadCart() {
+            const selectedItemsData = JSON.parse(localStorage.getItem('selectedItems') || '[]');
+            if (selectedItemsData.length === 0) {
+                showNotification('购物车为空，请先添加商品', 'error');
+                setTimeout(() => {
+                    window.location.href = 'cart.html';
+                }, 2000);
+                return;
+            }
+            
+            cart = selectedItemsData;
+            selectedItems = [...cart];
+            loadUserProfile();
+            updateOrderSummary();
+            
+            const langBtn = document.getElementById('checkout-lang-btn');
+            if (langBtn) {
+                langBtn.textContent = currentLang === 'zh' ? 'EN' : '中文';
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function updateOrderSummary() {
+            const selectedCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = subtotal > 0 ? 10 : 0;
+            const total = subtotal + shipping;
+            
+            document.getElementById('summary-count').textContent = selectedCount;
+            document.getElementById('summary-subtotal').textContent = formatPrice(subtotal);
+            document.getElementById('summary-shipping').textContent = formatPrice(shipping);
+            document.getElementById('summary-total').textContent = formatPrice(total);
+        }
+
+        function loadUserProfile() {
+            const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            if (userProfile.name) {
+                document.getElementById('shipping-name').value = userProfile.name;
+            }
+            if (userProfile.phone) {
+                document.getElementById('shipping-phone').value = userProfile.phone;
+            }
+            if (userProfile.email) {
+                document.getElementById('shipping-email').value = userProfile.email;
+            }
+            if (userProfile.address) {
+                document.getElementById('shipping-address').value = userProfile.address;
+            }
+            if (userProfile.country) {
+                document.getElementById('shipping-country').value = userProfile.country;
+            }
+            if (userProfile.province) {
+                document.getElementById('shipping-province').value = userProfile.province;
+            }
+            if (userProfile.city) {
+                document.getElementById('shipping-city').value = userProfile.city;
+            }
+            if (userProfile.zip) {
+                document.getElementById('shipping-zip').value = userProfile.zip;
+            }
+            if (userProfile.note) {
+                document.getElementById('shipping-note').value = userProfile.note;
+            }
+        }
+
+        function proceedToPayment() {
+            const form = document.getElementById('shipping-form');
+            if (!form.checkValidity()) {
+                alert('请填写完整的收货信息');
+                return;
+            }
+            
+            const userProfile = {
+                name: document.getElementById('shipping-name').value,
+                phone: document.getElementById('shipping-phone').value,
+                email: document.getElementById('shipping-email').value,
+                address: document.getElementById('shipping-address').value,
+                country: document.getElementById('shipping-country').value,
+                province: document.getElementById('shipping-province').value,
+                city: document.getElementById('shipping-city').value,
+                zip: document.getElementById('shipping-zip').value,
+                note: document.getElementById('shipping-note').value
+            };
+            
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            
+            alert('正在跳转到支付页面...');
+        }
+
+        function goBack() {
+            window.location.href = 'cart.html';
+        }
+
+        function showNotification(message, type) {
+            alert(message);
+        }
+
+        function toggleLanguage() {
+            const newLang = currentLang === 'zh' ? 'en' : 'zh';
+            currentLang = newLang;
+            localStorage.setItem('language', newLang);
+            
+            window.currentLanguage = newLang;
+            
+            const translations = window.translations;
+            if (translations) {
+                const langBtn = document.getElementById('checkout-lang-btn');
+                if (langBtn) {
+                    langBtn.textContent = newLang === 'zh' ? 'EN' : '中文';
+                }
+                
+                document.querySelectorAll('[data-lang]').forEach(element => {
+                    const key = element.getAttribute('data-lang');
+                    if (translations[newLang][key]) {
+                        element.innerHTML = translations[newLang][key];
+                    }
+                });
+                
+                document.documentElement.lang = newLang === 'zh' ? 'zh-CN' : 'en';
+            }
+            
+            updateOrderSummary();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            SessionManager.init();
+            loadCart();
+        });
+    </script>
+</body>
+</html>

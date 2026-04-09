@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DozingCat 电商平台 - 演示版</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .demo-badge {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 1001;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-badge">🎨 演示预览模式</div>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🐱 DozingCat</h1>
+            </div>
+            <div class="nav-links">
+                <a href="#" onclick="showPage('home')">首页</a>
+                <a href="#" onclick="showPage('products')">产品</a>
+                <a href="#" onclick="showPage('cart')">购物车 <span id="cart-count">(0)</span></a>
+                <a href="#" onclick="showPage('admin')">管理后台</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div id="home-page" class="page">
+            <section class="hero">
+                <h2>🌸 欢迎来到 DozingCat 电商平台 🌸</h2>
+                <p>✨ 发现优质商品，享受智能购物体验 ✨</p>
+                <button onclick="showPage('products')" class="btn btn-primary">🛍️ 立即购物</button>
+            </section>
+
+            <section class="features">
+                <div class="feature-card">
+                    <h3>📦 产品管理</h3>
+                    <p>轻松上传和管理您的产品</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💳 安全支付</h3>
+                    <p>多种支付方式，安全便捷</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🤖 智能发货</h3>
+                    <p>AI机器人自动处理发货</p>
+                </div>
+            </section>
+        </div>
+
+        <div id="products-page" class="page hidden">
+            <h2>🛒 产品列表 🛒</h2>
+            <div id="products-grid" class="products-grid"></div>
+        </div>
+
+        <div id="cart-page" class="page hidden">
+            <h2>🛍️ 购物车 🛍️</h2>
+            <div id="cart-items" class="cart-items"></div>
+            <div class="cart-summary">
+                <h3>总计: ¥<span id="cart-total">0.00</span></h3>
+                <button onclick="showCheckout()" class="btn btn-primary">💳 结算</button>
+            </div>
+        </div>
+
+        <div id="checkout-page" class="page hidden">
+            <h2>💳 结算页面 💳</h2>
+            <form id="checkout-form" onsubmit="submitOrder(event)">
+                <div class="form-group">
+                    <label>👤 姓名</label>
+                    <input type="text" name="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label>📧 邮箱</label>
+                    <input type="email" name="customerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>📱 电话</label>
+                    <input type="tel" name="customerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>🏠 收货地址</label>
+                    <textarea name="address" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>💰 支付方式</label>
+                    <select name="paymentMethod" required>
+                        <option value="alipay">🔵 支付宝</option>
+                        <option value="wechat">🟢 微信支付</option>
+                        <option value="card">💳 银行卡</option>
+                    </select>
+                </div>
+                <div class="order-summary">
+                    <h3>订单金额: ¥<span id="checkout-total">0.00</span></h3>
+                </div>
+                <button type="submit" class="btn btn-primary">✅ 提交订单</button>
+            </form>
+        </div>
+
+        <div id="admin-page" class="page hidden">
+            <h2>⚙️ 管理后台 ⚙️</h2>
+            <div class="admin-tabs">
+                <button onclick="showAdminTab('products')" class="tab-btn active">📦 产品管理</button>
+                <button onclick="showAdminTab('orders')" class="tab-btn">📋 订单管理</button>
+                <button onclick="showAdminTab('shipping')" class="tab-btn">🚚 发货管理</button>
+            </div>
+
+            <div id="admin-products" class="admin-tab">
+                <h3>➕ 添加产品</h3>
+                <form id="product-form" onsubmit="addProduct(event)">
+                    <div class="form-group">
+                        <label>🏷️ 产品名称</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>📝 产品描述</label>
+                        <textarea name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>💵 价格 (¥)</label>
+                        <input type="number" name="price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>📊 库存</label>
+                        <input type="number" name="stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🖼️ 产品图片</label>
+                        <input type="file" name="image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary">✨ 添加产品</button>
+                </form>
+
+                <h3>📦 产品列表</h3>
+                <div id="admin-products-list" class="admin-products-list"></div>
+            </div>
+
+            <div id="admin-orders" class="admin-tab hidden">
+                <h3>📋 订单列表</h3>
+                <div id="admin-orders-list" class="admin-orders-list"></div>
+            </div>
+
+            <div id="admin-shipping" class="admin-tab hidden">
+                <h3>🤖 智能发货系统</h3>
+                <div id="shipping-queue" class="shipping-queue"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="notification" class="notification hidden"></div>
+
+    <script>
+        let cart = [];
+        let products = [
+            {
+                id: 1,
+                name: '可爱猫咪玩偶',
+                description: '超柔软的猫咪玩偶，手感极佳，适合抱抱',
+                price: 99.99,
+                stock: 50,
+                image: null
+            },
+            {
+                id: 2,
+                name: '粉色猫咪马克杯',
+                description: '陶瓷材质，猫咪造型，粉色系设计',
+                price: 49.99,
+                stock: 30,
+                image: null
+            },
+            {
+                id: 3,
+                name: '猫咪主题笔记本',
+                description: '精美笔记本，内页有猫咪插画',
+                price: 29.99,
+                stock: 100,
+                image: null
+            },
+            {
+                id: 4,
+                name: '猫咪钥匙扣',
+                description: '可爱猫咪造型钥匙扣，多种颜色可选',
+                price: 19.99,
+                stock: 200,
+                image: null
+            },
+            {
+                id: 5,
+                name: '猫咪抱枕',
+                description: '大号猫咪抱枕，柔软舒适，适合午休',
+                price: 159.99,
+                stock: 20,
+                image: null
+            },
+            {
+                id: 6,
+                name: '猫咪手机壳',
+                description: '硅胶材质，猫咪造型，防摔保护',
+                price: 39.99,
+                stock: 80,
+                image: null
+            }
+        ];
+
+        let orders = [
+            {
+                id: 1,
+                customer_name: '张三',
+                customer_email: 'zhangsan@example.com',
+                customer_phone: '13800138000',
+                address: '北京市朝阳区xxx街道xxx号',
+                total_amount: 149.98,
+                status: 'paid',
+                items: [
+                    { id: 1, name: '可爱猫咪玩偶', price: 99.99, quantity: 1 },
+                    { id: 2, name: '粉色猫咪马克杯', price: 49.99, quantity: 1 }
+                ]
+            },
+            {
+                id: 2,
+                customer_name: '李四',
+                customer_email: 'lisi@example.com',
+                customer_phone: '13900139000',
+                address: '上海市浦东新区xxx路xxx号',
+                total_amount: 29.99,
+                status: 'pending',
+                items: [
+                    { id: 3, name: '猫咪主题笔记本', price: 29.99, quantity: 1 }
+                ]
+            }
+        ];
+
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+            document.getElementById(`${pageName}-page`).classList.remove('hidden');
+
+            if (pageName === 'products') {
+                renderProducts();
+            } else if (pageName === 'cart') {
+                renderCart();
+            } else if (pageName === 'admin') {
+                renderAdminProducts();
+                renderAdminOrders();
+                renderShippingQueue();
+            }
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = products.map(product => `
+                <div class="product-card">
+                    ${product.image ? `<img src="${product.image}" alt="${product.name}" class="product-image">` : '<div class="product-image"></div>'}
+                    <div class="product-info">
+                        <h3>💝 ${product.name}</h3>
+                        <p>${product.description}</p>
+                        <div class="product-price">💰 ¥${product.price.toFixed(2)}</div>
+                        <div class="product-stock">📦 库存: ${product.stock}</div>
+                        <button onclick="addToCart(${product.id})" class="btn btn-primary" ${product.stock <= 0 ? 'disabled' : ''}>
+                            ${product.stock > 0 ? '🛒 加入购物车' : '😢 缺货'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product || product.stock <= 0) return;
+
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                if (existingItem.quantity < product.stock) {
+                    existingItem.quantity++;
+                } else {
+                    showNotification('😢 库存不足', 'error');
+                    return;
+                }
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1,
+                    image: product.image
+                });
+            }
+
+            updateCartCount();
+            showNotification('✅ 已添加到购物车');
+        }
+
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').textContent = `(${count})`;
+        }
+
+        function renderCart() {
+            const cartItems = document.getElementById('cart-items');
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p>🛒 购物车为空</p>';
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <h4>💝 ${item.name}</h4>
+                            <p>💰 ¥${item.price.toFixed(2)} × ${item.quantity}</p>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button onclick="updateQuantity(${item.id}, -1)" class="btn btn-secondary">➖</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.id}, 1)" class="btn btn-secondary">➕</button>
+                            <button onclick="removeFromCart(${item.id})" class="btn btn-danger">🗑️ 删除</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('cart-total').textContent = total.toFixed(2);
+        }
+
+        function updateQuantity(productId, change) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const newQuantity = item.quantity + change;
+            if (newQuantity <= 0) {
+                removeFromCart(productId);
+            } else if (newQuantity <= product.stock) {
+                item.quantity = newQuantity;
+                updateCartCount();
+                renderCart();
+            } else {
+                showNotification('😢 库存不足', 'error');
+            }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartCount();
+            renderCart();
+        }
+
+        function showCheckout() {
+            if (cart.length === 0) {
+                showNotification('😢 购物车为空', 'error');
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('checkout-total').textContent = total.toFixed(2);
+            showPage('checkout');
+        }
+
+        function submitOrder(event) {
+            event.preventDefault();
+            showNotification('🎉 订单提交成功！(演示模式)');
+            cart = [];
+            updateCartCount();
+            showPage('home');
+        }
+
+        function addProduct(event) {
+            event.preventDefault();
+            const form = event.target;
+            const newProduct = {
+                id: products.length + 1,
+                name: form.name.value,
+                description: form.description.value,
+                price: parseFloat(form.price.value),
+                stock: parseInt(form.stock.value),
+                image: null
+            };
+            products.push(newProduct);
+            form.reset();
+            showNotification('✨ 产品添加成功！(演示模式)');
+            renderAdminProducts();
+        }
+
+        function renderAdminProducts() {
+            const list = document.getElementById('admin-products-list');
+            list.innerHTML = products.map(product => `
+                <div class="admin-product-item">
+                    <h4>💝 ${product.name}</h4>
+                    <p>💰 价格: ¥${product.price.toFixed(2)} | 📦 库存: ${product.stock}</p>
+                    <button onclick="deleteProduct(${product.id})" class="btn btn-danger">🗑️ 删除</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteProduct(productId) {
+            if (!confirm('确定要删除这个产品吗？')) return;
+            products = products.filter(p => p.id !== productId);
+            showNotification('✅ 产品删除成功！(演示模式)');
+            renderAdminProducts();
+        }
+
+        function renderAdminOrders() {
+            const list = document.getElementById('admin-orders-list');
+            list.innerHTML = orders.map(order => `
+                <div class="admin-order-item">
+                    <h4>📋 订单 #${order.id}</h4>
+                    <p>👤 客户: ${order.customer_name}</p>
+                    <p>💰 金额: ¥${order.total_amount.toFixed(2)}</p>
+                    <p>📊 状态: <span class="status-badge status-${order.status}">${order.status}</span></p>
+                    <p>🏠 地址: ${order.address}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderShippingQueue() {
+            const queue = document.getElementById('shipping-queue');
+            const pendingOrders = orders.filter(order => order.status === 'paid');
+            if (pendingOrders.length === 0) {
+                queue.innerHTML = '<p>📭 没有待发货的订单</p>';
+            } else {
+                queue.innerHTML = pendingOrders.map(order => `
+                    <div class="shipping-item">
+                        <h4>📋 订单 #${order.id}</h4>
+                        <p>👤 客户: ${order.customer_name}</p>
+                        <p>🏠 地址: ${order.address}</p>
+                        <button onclick="triggerShippingBot(${order.id})" class="btn btn-primary">🤖 触发智能发货</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function triggerShippingBot(orderId) {
+            showNotification('🤖 智能发货机器人正在处理...');
+            setTimeout(() => {
+                const order = orders.find(o => o.id === orderId);
+                if (order) {
+                    order.status = 'shipped';
+                }
+                showNotification('🚚 发货成功！物流单号: TRK' + Date.now());
+                renderShippingQueue();
+                renderAdminOrders();
+            }, 2000);
+        }
+
+        function showAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.remove('active');
+                tab.classList.add('hidden');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(`admin-${tabName}`).classList.add('active');
+            document.getElementById(`admin-${tabName}`).classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.classList.remove('hidden');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('home');
+        });
+    </script>
+</body>
+</html>

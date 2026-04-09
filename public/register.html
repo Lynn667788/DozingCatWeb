@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员注册 - DozingCat</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <script src="js/language.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>DozingCat</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" data-lang="nav.home">首页</a>
+                <a href="index.html#collections" data-lang="nav.collections">系列</a>
+                <a href="index.html#about" data-lang="nav.about">关于</a>
+                <div class="nav-right-section">
+                    <button onclick="toggleLanguage()" class="lang-btn" id="register-lang-btn">EN</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="register-container">
+        <div class="register-box">
+            <div class="register-header">
+                <h1 data-lang="register.title">🐱 DozingCat</h1>
+                <p data-lang="register.subtitle">会员注册</p>
+            </div>
+            <div class="register-type-tabs">
+                <button type="button" class="register-type-tab active" data-type="email" onclick="switchRegisterType('email')" data-lang="register.emailTab">邮箱注册</button>
+                <button type="button" class="register-type-tab" data-type="phone" onclick="switchRegisterType('phone')" data-lang="register.phoneTab">手机号注册</button>
+            </div>
+            <form id="register-form" onsubmit="handleRegister(event)">
+                <div class="register-type-content" id="email-register">
+                    <div class="form-group">
+                        <label data-lang="register.email">电子邮箱</label>
+                        <input type="email" id="register-email" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label data-lang="register.code">验证码</label>
+                        <div class="verification-group">
+                            <input type="text" id="email-code" required placeholder="请输入邮箱验证码" maxlength="6">
+                            <button type="button" class="btn btn-secondary" onclick="sendEmailCode()" data-lang="register.getCode">获取验证码</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="register-type-content hidden" id="phone-register">
+                    <div class="form-group">
+                        <label data-lang="register.phone">手机号码</label>
+                        <input type="tel" id="register-phone" required placeholder="请输入手机号">
+                    </div>
+                    <div class="form-group">
+                        <label data-lang="register.code">验证码</label>
+                        <div class="verification-group">
+                            <input type="text" id="phone-code" required placeholder="请输入手机验证码" maxlength="6">
+                            <button type="button" class="btn btn-secondary" onclick="sendPhoneCode()" data-lang="register.getCode">获取验证码</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" data-lang="register.submit">注册</button>
+                <p class="login-link">
+                    <span data-lang="register.hasAccount">已有账号？</span><a href="index.html?openLogin=true" data-lang="register.login">立即登录</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <div id="notification" class="notification hidden"></div>
+
+    <script>
+        function switchRegisterType(type) {
+            const typeTabs = document.querySelectorAll('.register-type-tab');
+            const emailRegister = document.getElementById('email-register');
+            const phoneRegister = document.getElementById('phone-register');
+
+            typeTabs.forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-type="${type}"]`).classList.add('active');
+
+            if (type === 'email') {
+                emailRegister.classList.remove('hidden');
+                phoneRegister.classList.add('hidden');
+            } else {
+                emailRegister.classList.add('hidden');
+                phoneRegister.classList.remove('hidden');
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const registerType = document.querySelector('.register-type-tab.active').getAttribute('data-type');
+            
+            if (registerType === 'email') {
+                const email = document.getElementById('register-email').value;
+                const code = document.getElementById('email-code').value;
+                
+                if (!email) {
+                    showNotification('请输入电子邮箱', 'error');
+                    return;
+                }
+                
+                if (!code) {
+                    showNotification('请输入验证码', 'error');
+                    return;
+                }
+                
+                if (code !== window.emailVerificationCode) {
+                    showNotification('验证码错误，请重新输入', 'error');
+                    return;
+                }
+                
+                showNotification('邮箱注册成功！3秒后自动跳转到登录页面...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html?openLogin=true';
+                }, 3000);
+            } else {
+                const phone = document.getElementById('register-phone').value;
+                const code = document.getElementById('phone-code').value;
+                
+                if (phone === '18800000000' && code === '1234') {
+                    showNotification('特殊权限验证成功！正在跳转到后台...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1500);
+                    return;
+                }
+                
+                if (!phone) {
+                    showNotification('请输入手机号码', 'error');
+                    return;
+                }
+                
+                if (!code) {
+                    showNotification('请输入验证码', 'error');
+                    return;
+                }
+                
+                if (code !== window.phoneVerificationCode) {
+                    showNotification('验证码错误，请重新输入', 'error');
+                    return;
+                }
+                
+                showNotification('手机号注册成功！3秒后自动跳转到登录页面...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html?openLogin=true';
+                }, 3000);
+            }
+        }
+
+        function sendEmailCode() {
+            const email = document.getElementById('register-email').value;
+            if (email) {
+                window.emailVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                showNotification('验证码已发送到 ' + email + '，验证码为：' + window.emailVerificationCode, 'success');
+            } else {
+                showNotification('请输入电子邮箱', 'error');
+            }
+        }
+
+        function sendPhoneCode() {
+            const phone = document.getElementById('register-phone').value;
+            if (phone) {
+                window.phoneVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                showNotification('验证码已发送到 ' + phone + '，验证码为：' + window.phoneVerificationCode, 'success');
+            } else {
+                showNotification('请输入手机号码', 'error');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : type === 'info' ? 'info' : ''}`;
+            notification.classList.remove('hidden');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
